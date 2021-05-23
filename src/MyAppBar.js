@@ -20,10 +20,10 @@ const {
 } = MaterialUI;
 
 const LoginButton = () => {
-  const { appConfig: { appExternalLoginUrl } } = React.useContext(AppConfigContext);
+  const { appConfig: { appExternalLoginUrl, hideLogin } } = React.useContext(AppConfigContext);
   const { user: { name: userName } } = React.useContext(UserContext);
 
-  return userName ? null : e(React.Fragment, null,
+  return (userName || hideLogin) ? null : e(React.Fragment, null,
     e(Button, { color: 'inherit', href: appExternalLoginUrl }, 'Login'));
 };
 

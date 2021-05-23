@@ -14,7 +14,8 @@ const makeAppConfig = ({
   appIdentityPoolId,
   appRefreshTokenStorageKey,
   appLogoUrl,
-  appMessages
+  appMessages,
+  hideLogin
 }) => {
   const appBaseAuthUrl = `https://${appUserPoolDomain}.auth.${appRegion}.amazoncognito.com`;
   const appAuthRedirect = `${appHost}${appBasePath}?auth-redirect`;
@@ -35,7 +36,8 @@ const makeAppConfig = ({
     appExternalLoginUrl,
     appRefreshTokenStorageKey,
     appLogoUrl,
-    appMessages
+    appMessages,
+    hideLogin: hideLogin || false
   };
 };
 
