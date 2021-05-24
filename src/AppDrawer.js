@@ -1,11 +1,12 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
 
 import AppConfigContext from './AppConfigContext';
 import UserContext from './UserContext';
 
 const e = React.createElement;
-const { NavLink } = window.ReactRouterDOM;
+
 const {
   Box,
   Divider,

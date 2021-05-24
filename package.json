@@ -2,12 +2,21 @@
   "name": "react-aws-cognito-lambda-dynamodb-base-prototype-app",
   "version": "0.0.1",
   "description": "Base components for prototyping a serverless React app making use of AWS Cognito, Lambda and DynamoDB",
-  "main": "src/index.js",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "files": [
+    "css",
+    "es",
+    "lib",
+    "umd"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/seuvitor/react-aws-cognito-lambda-dynamodb-base-prototype-app.git"
   },
   "scripts": {
+    "build": "nwb build-react-component --no-demo",
+    "start": "nwb serve-react-demo",
     "lint": "eslint --fix ."
   },
   "author": "Vitor Dantas",
@@ -17,12 +26,14 @@
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.2",
     "eslint-plugin-react": "^7.23.2",
-    "eslint-plugin-react-hooks": "^4.2.0"
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "nwb": "^0.25.2"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "aws-sdk": "2.673.0",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0"
   }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
 
 import AppConfigContext from './AppConfigContext';
@@ -6,7 +7,6 @@ import MessageContext from './MessageContext';
 import UserContext from './UserContext';
 
 const e = React.createElement;
-const { useParams, useHistory } = window.ReactRouterDOM;
 const { Backdrop, CircularProgress } = MaterialUI;
 
 const AuthRedirect = () => {

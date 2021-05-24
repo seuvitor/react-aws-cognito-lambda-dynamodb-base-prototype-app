@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
 
 import AppConfigContext from './AppConfigContext';
@@ -6,7 +7,7 @@ import MessageContext from './MessageContext';
 import UserContext from './UserContext';
 
 const e = React.createElement;
-const { useLocation } = window.ReactRouterDOM;
+
 const {
   AppBar,
   Button,

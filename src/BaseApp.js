@@ -1,4 +1,5 @@
 import React from 'react';
+import { HashRouter, Route, Switch } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
 
 import AuthRedirect from './AuthRedirect';
@@ -7,12 +8,6 @@ import MyAppBar from './MyAppBar';
 import AppDrawer from './AppDrawer';
 
 const e = React.createElement;
-
-const {
-  HashRouter,
-  Route,
-  Switch
-} = window.ReactRouterDOM;
 
 const { Toolbar } = MaterialUI;
 
