@@ -29,7 +29,7 @@ const LoginButton = () => {
 };
 
 const AccountButton = () => {
-  const { appConfig: { appMessages } } = React.useContext(AppConfigContext);
+  const { appConfig: { appMessages, hideLogin } } = React.useContext(AppConfigContext);
   const { showMessage } = React.useContext(MessageContext);
   const { user: { name: userName }, logoff } = React.useContext(UserContext);
   const [accountMenuOpened, setAccountMenuOpened] = React.useState(false);
@@ -52,7 +52,7 @@ const AccountButton = () => {
     setAccountMenuOpened(false);
   };
 
-  return !userName ? null : e(React.Fragment, null,
+  return (!userName || hideLogin) ? null : e(React.Fragment, null,
     e(IconButton, { color: 'inherit', ref: accountMenuRef, onClick: handleAccountMenuClick },
       e(Icon, null, 'account_circle')),
     e(Menu,
