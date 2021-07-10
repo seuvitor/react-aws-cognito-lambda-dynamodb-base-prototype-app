@@ -32,7 +32,9 @@ var LoginButton = function LoginButton() {
 
 var AccountButton = function AccountButton() {
   var _React$useContext3 = React.useContext(AppConfigContext),
-      appMessages = _React$useContext3.appConfig.appMessages;
+      _React$useContext3$ap = _React$useContext3.appConfig,
+      appMessages = _React$useContext3$ap.appMessages,
+      hideLogin = _React$useContext3$ap.hideLogin;
 
   var _React$useContext4 = React.useContext(MessageContext),
       showMessage = _React$useContext4.showMessage;
@@ -64,7 +66,7 @@ var AccountButton = function AccountButton() {
     setAccountMenuOpened(false);
   };
 
-  return !userName ? null : e(React.Fragment, null, e(IconButton, {
+  return !userName || hideLogin ? null : e(React.Fragment, null, e(IconButton, {
     color: 'inherit',
     ref: accountMenuRef,
     onClick: handleAccountMenuClick
