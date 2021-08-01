@@ -46,5 +46,11 @@ const AppConfigProvider = ({
   children
 }) => e(AppConfigContext.Provider, { value: { appConfig } }, children);
 
-export default AppConfigContext;
+const useAppConfig = () => {
+  const { appConfig } = React.useContext(AppConfigContext);
+
+  return { appConfig };
+};
+
+export default useAppConfig;
 export { AppConfigProvider, makeAppConfig };

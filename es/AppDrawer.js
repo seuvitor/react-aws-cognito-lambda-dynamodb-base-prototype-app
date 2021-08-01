@@ -3,8 +3,8 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
-import AppConfigContext from './AppConfigContext';
-import UserContext from './UserContext';
+import useAppConfig from './AppConfigContext';
+import useUser from './UserContext';
 var e = React.createElement;
 var Box = MaterialUI.Box,
     Divider = MaterialUI.Divider,
@@ -19,11 +19,11 @@ var AppDrawer = function AppDrawer(_ref) {
       drawerOpen = _ref.drawerOpen,
       setDrawerOpen = _ref.setDrawerOpen;
 
-  var _React$useContext = React.useContext(AppConfigContext),
-      appLogoUrl = _React$useContext.appConfig.appLogoUrl;
+  var _useAppConfig = useAppConfig(),
+      appLogoUrl = _useAppConfig.appConfig.appLogoUrl;
 
-  var _React$useContext2 = React.useContext(UserContext),
-      userGroups = _React$useContext2.user.groups;
+  var _useUser = useUser(),
+      userGroups = _useUser.user.groups;
 
   var handleClose = function handleClose() {
     return setDrawerOpen(false);

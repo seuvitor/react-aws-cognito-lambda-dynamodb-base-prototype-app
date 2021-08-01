@@ -1,6 +1,6 @@
 {
   "name": "react-aws-cognito-lambda-dynamodb-base-prototype-app",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Base components for prototyping a serverless React app making use of AWS Cognito, Lambda and DynamoDB",
   "main": "lib/index.js",
   "module": "es/index.js",

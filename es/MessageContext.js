@@ -71,5 +71,14 @@ var MessageProvider = function MessageProvider(_ref) {
   }, null));
 };
 
-export default MessageContext;
+var useMessage = function useMessage() {
+  var _React$useContext = React.useContext(MessageContext),
+      showMessage = _React$useContext.showMessage;
+
+  return {
+    showMessage: showMessage
+  };
+};
+
+export default useMessage;
 export { MessageProvider };

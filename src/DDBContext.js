@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import {
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  UpdateCommand
+} from '@aws-sdk/lib-dynamodb';
 
-import UserContext from './UserContext';
+import useUser from './UserContext';
 
 const e = React.createElement;
 
 const DDBContext = React.createContext();
 
 const DDBProvider = ({ children }) => {
-  const { awsConfig, awsCredentials } = React.useContext(UserContext);
+  const { awsConfig, awsCredentials } = useUser();
   const [documentDB, setDocumentDB] = React.useState();
 
   React.useEffect(() => {
@@ -36,5 +41,31 @@ const DDBProvider = ({ children }) => {
   return e(DDBContext.Provider, { value: { documentDB } }, children);
 };
 
-export default DDBContext;
+const useDDB = () => {
+  const { documentDB } = React.useContext(DDBContext);
+
+  const ddbGet = useCallback(
+    (params) => documentDB.send(new GetCommand(params)),
+    [documentDB]
+  );
+
+  const ddbPut = useCallback(
+    (params) => documentDB.send(new PutCommand(params)),
+    [documentDB]
+  );
+
+  const ddbUpdate = useCallback(
+    (params) => documentDB.send(new UpdateCommand(params)),
+    [documentDB]
+  );
+
+  return {
+    documentDB,
+    ddbGet: documentDB && ddbGet,
+    ddbPut: documentDB && ddbPut,
+    ddbUpdate: documentDB && ddbUpdate
+  };
+};
+
+export default useDDB;
 export { DDBProvider };

@@ -2,8 +2,8 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
 
-import AppConfigContext from './AppConfigContext';
-import UserContext from './UserContext';
+import useAppConfig from './AppConfigContext';
+import useUser from './UserContext';
 
 const e = React.createElement;
 
@@ -18,8 +18,8 @@ const {
 } = MaterialUI;
 
 const AppDrawer = ({ routes, drawerOpen, setDrawerOpen }) => {
-  const { appConfig: { appLogoUrl } } = React.useContext(AppConfigContext);
-  const { user: { groups: userGroups } } = React.useContext(UserContext);
+  const { appConfig: { appLogoUrl } } = useAppConfig();
+  const { user: { groups: userGroups } } = useUser();
 
   const handleClose = () => setDrawerOpen(false);
 

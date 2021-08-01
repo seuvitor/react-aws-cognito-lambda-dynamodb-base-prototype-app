@@ -3,7 +3,7 @@ import React from 'react';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 
-import AppConfigContext from './AppConfigContext';
+import useAppConfig from './AppConfigContext';
 
 const e = React.createElement;
 
@@ -39,7 +39,7 @@ const UserProvider = ({ children }) => {
       appRefreshTokenStorageKey,
       appMessages
     }
-  } = React.useContext(AppConfigContext);
+  } = useAppConfig();
 
   const [user, setUser] = React.useState({
     identityId: undefined,
@@ -232,5 +232,25 @@ const UserProvider = ({ children }) => {
     children);
 };
 
-export default UserContext;
+const useUser = () => {
+  const {
+    user,
+    awsConfig,
+    awsCredentials,
+    loginAnonymously,
+    loginWithAuthorizationCode,
+    logoff
+  } = React.useContext(UserContext);
+
+  return {
+    user,
+    awsConfig,
+    awsCredentials,
+    loginAnonymously,
+    loginWithAuthorizationCode,
+    logoff
+  };
+};
+
+export default useUser;
 export { UserProvider };

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
-import AppConfigContext from './AppConfigContext';
-import MessageContext from './MessageContext';
-import UserContext from './UserContext';
+import useAppConfig from './AppConfigContext';
+import useMessage from './MessageContext';
+import useUser from './UserContext';
 var e = React.createElement;
 var AppBar = MaterialUI.AppBar,
     Button = MaterialUI.Button,
@@ -16,13 +16,13 @@ var AppBar = MaterialUI.AppBar,
     Typography = MaterialUI.Typography;
 
 var LoginButton = function LoginButton() {
-  var _React$useContext = React.useContext(AppConfigContext),
-      _React$useContext$app = _React$useContext.appConfig,
-      appExternalLoginUrl = _React$useContext$app.appExternalLoginUrl,
-      hideLogin = _React$useContext$app.hideLogin;
+  var _useAppConfig = useAppConfig(),
+      _useAppConfig$appConf = _useAppConfig.appConfig,
+      appExternalLoginUrl = _useAppConfig$appConf.appExternalLoginUrl,
+      hideLogin = _useAppConfig$appConf.hideLogin;
 
-  var _React$useContext2 = React.useContext(UserContext),
-      userName = _React$useContext2.user.name;
+  var _useUser = useUser(),
+      userName = _useUser.user.name;
 
   return userName || hideLogin ? null : e(React.Fragment, null, e(Button, {
     color: 'inherit',
@@ -31,17 +31,17 @@ var LoginButton = function LoginButton() {
 };
 
 var AccountButton = function AccountButton() {
-  var _React$useContext3 = React.useContext(AppConfigContext),
-      _React$useContext3$ap = _React$useContext3.appConfig,
-      appMessages = _React$useContext3$ap.appMessages,
-      hideLogin = _React$useContext3$ap.hideLogin;
+  var _useAppConfig2 = useAppConfig(),
+      _useAppConfig2$appCon = _useAppConfig2.appConfig,
+      appMessages = _useAppConfig2$appCon.appMessages,
+      hideLogin = _useAppConfig2$appCon.hideLogin;
 
-  var _React$useContext4 = React.useContext(MessageContext),
-      showMessage = _React$useContext4.showMessage;
+  var _useMessage = useMessage(),
+      showMessage = _useMessage.showMessage;
 
-  var _React$useContext5 = React.useContext(UserContext),
-      userName = _React$useContext5.user.name,
-      logoff = _React$useContext5.logoff;
+  var _useUser2 = useUser(),
+      userName = _useUser2.user.name,
+      logoff = _useUser2.logoff;
 
   var _React$useState = React.useState(false),
       accountMenuOpened = _React$useState[0],

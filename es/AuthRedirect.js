@@ -1,22 +1,22 @@
 import React from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
-import AppConfigContext from './AppConfigContext';
-import MessageContext from './MessageContext';
-import UserContext from './UserContext';
+import useAppConfig from './AppConfigContext';
+import useMessage from './MessageContext';
+import useUser from './UserContext';
 var e = React.createElement;
 var Backdrop = MaterialUI.Backdrop,
     CircularProgress = MaterialUI.CircularProgress;
 
 var AuthRedirect = function AuthRedirect() {
-  var _React$useContext = React.useContext(AppConfigContext),
-      appMessages = _React$useContext.appConfig.appMessages;
+  var _useAppConfig = useAppConfig(),
+      appMessages = _useAppConfig.appConfig.appMessages;
 
-  var _React$useContext2 = React.useContext(MessageContext),
-      showMessage = _React$useContext2.showMessage;
+  var _useMessage = useMessage(),
+      showMessage = _useMessage.showMessage;
 
-  var _React$useContext3 = React.useContext(UserContext),
-      loginWithAuthorizationCode = _React$useContext3.loginWithAuthorizationCode;
+  var _useUser = useUser(),
+      loginWithAuthorizationCode = _useUser.loginWithAuthorizationCode;
 
   var _useParams = useParams(),
       authorizationCode = _useParams.authorization_code;

@@ -47,5 +47,14 @@ var AppConfigProvider = function AppConfigProvider(_ref2) {
   }, children);
 };
 
-export default AppConfigContext;
+var useAppConfig = function useAppConfig() {
+  var _React$useContext = React.useContext(AppConfigContext),
+      appConfig = _React$useContext.appConfig;
+
+  return {
+    appConfig: appConfig
+  };
+};
+
+export default useAppConfig;
 export { AppConfigProvider, makeAppConfig };

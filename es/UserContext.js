@@ -3,7 +3,7 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 import React from 'react';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
-import AppConfigContext from './AppConfigContext';
+import useAppConfig from './AppConfigContext';
 var e = React.createElement;
 var UserContext = React.createContext();
 
@@ -27,16 +27,16 @@ var useSetInterval = function useSetInterval(callback, seconds) {
 var UserProvider = function UserProvider(_ref) {
   var children = _ref.children;
 
-  var _React$useContext = React.useContext(AppConfigContext),
-      _React$useContext$app = _React$useContext.appConfig,
-      appAuthRedirect = _React$useContext$app.appAuthRedirect,
-      appAuthUrl = _React$useContext$app.appAuthUrl,
-      appClientId = _React$useContext$app.appClientId,
-      appIdentityPoolId = _React$useContext$app.appIdentityPoolId,
-      appRegion = _React$useContext$app.appRegion,
-      appUserPoolId = _React$useContext$app.appUserPoolId,
-      appRefreshTokenStorageKey = _React$useContext$app.appRefreshTokenStorageKey,
-      appMessages = _React$useContext$app.appMessages;
+  var _useAppConfig = useAppConfig(),
+      _useAppConfig$appConf = _useAppConfig.appConfig,
+      appAuthRedirect = _useAppConfig$appConf.appAuthRedirect,
+      appAuthUrl = _useAppConfig$appConf.appAuthUrl,
+      appClientId = _useAppConfig$appConf.appClientId,
+      appIdentityPoolId = _useAppConfig$appConf.appIdentityPoolId,
+      appRegion = _useAppConfig$appConf.appRegion,
+      appUserPoolId = _useAppConfig$appConf.appUserPoolId,
+      appRefreshTokenStorageKey = _useAppConfig$appConf.appRefreshTokenStorageKey,
+      appMessages = _useAppConfig$appConf.appMessages;
 
   var _React$useState = React.useState({
     identityId: undefined,
@@ -237,5 +237,24 @@ var UserProvider = function UserProvider(_ref) {
   }, children);
 };
 
-export default UserContext;
+var useUser = function useUser() {
+  var _React$useContext = React.useContext(UserContext),
+      user = _React$useContext.user,
+      awsConfig = _React$useContext.awsConfig,
+      awsCredentials = _React$useContext.awsCredentials,
+      loginAnonymously = _React$useContext.loginAnonymously,
+      loginWithAuthorizationCode = _React$useContext.loginWithAuthorizationCode,
+      logoff = _React$useContext.logoff;
+
+  return {
+    user: user,
+    awsConfig: awsConfig,
+    awsCredentials: awsCredentials,
+    loginAnonymously: loginAnonymously,
+    loginWithAuthorizationCode: loginWithAuthorizationCode,
+    logoff: logoff
+  };
+};
+
+export default useUser;
 export { UserProvider };

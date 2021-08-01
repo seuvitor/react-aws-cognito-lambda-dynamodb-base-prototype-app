@@ -2,9 +2,9 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
 
-import AppConfigContext from './AppConfigContext';
-import MessageContext from './MessageContext';
-import UserContext from './UserContext';
+import useAppConfig from './AppConfigContext';
+import useMessage from './MessageContext';
+import useUser from './UserContext';
 
 const e = React.createElement;
 
@@ -21,17 +21,17 @@ const {
 } = MaterialUI;
 
 const LoginButton = () => {
-  const { appConfig: { appExternalLoginUrl, hideLogin } } = React.useContext(AppConfigContext);
-  const { user: { name: userName } } = React.useContext(UserContext);
+  const { appConfig: { appExternalLoginUrl, hideLogin } } = useAppConfig();
+  const { user: { name: userName } } = useUser();
 
   return (userName || hideLogin) ? null : e(React.Fragment, null,
     e(Button, { color: 'inherit', href: appExternalLoginUrl }, 'Login'));
 };
 
 const AccountButton = () => {
-  const { appConfig: { appMessages, hideLogin } } = React.useContext(AppConfigContext);
-  const { showMessage } = React.useContext(MessageContext);
-  const { user: { name: userName }, logoff } = React.useContext(UserContext);
+  const { appConfig: { appMessages, hideLogin } } = useAppConfig();
+  const { showMessage } = useMessage();
+  const { user: { name: userName }, logoff } = useUser();
   const [accountMenuOpened, setAccountMenuOpened] = React.useState(false);
   const accountMenuRef = React.useRef(null);
 

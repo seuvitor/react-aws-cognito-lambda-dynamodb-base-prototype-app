@@ -2,17 +2,17 @@ import React from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import * as MaterialUI from '@material-ui/core';
 
-import AppConfigContext from './AppConfigContext';
-import MessageContext from './MessageContext';
-import UserContext from './UserContext';
+import useAppConfig from './AppConfigContext';
+import useMessage from './MessageContext';
+import useUser from './UserContext';
 
 const e = React.createElement;
 const { Backdrop, CircularProgress } = MaterialUI;
 
 const AuthRedirect = () => {
-  const { appConfig: { appMessages } } = React.useContext(AppConfigContext);
-  const { showMessage } = React.useContext(MessageContext);
-  const { loginWithAuthorizationCode } = React.useContext(UserContext);
+  const { appConfig: { appMessages } } = useAppConfig();
+  const { showMessage } = useMessage();
+  const { loginWithAuthorizationCode } = useUser();
   const { authorization_code: authorizationCode } = useParams();
   const [loading, setLoading] = React.useState(true);
   const theme = MaterialUI.useTheme();

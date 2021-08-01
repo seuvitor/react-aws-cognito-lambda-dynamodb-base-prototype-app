@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import UserContext from './UserContext';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import useUser from './UserContext';
 var e = React.createElement;
 var DDBContext = React.createContext();
 
 var DDBProvider = function DDBProvider(_ref) {
   var children = _ref.children;
 
-  var _React$useContext = React.useContext(UserContext),
-      awsConfig = _React$useContext.awsConfig,
-      awsCredentials = _React$useContext.awsCredentials;
+  var _useUser = useUser(),
+      awsConfig = _useUser.awsConfig,
+      awsCredentials = _useUser.awsCredentials;
 
   var _React$useState = React.useState(),
       documentDB = _React$useState[0],
@@ -44,5 +44,26 @@ var DDBProvider = function DDBProvider(_ref) {
   }, children);
 };
 
-export default DDBContext;
+var useDDB = function useDDB() {
+  var _React$useContext = React.useContext(DDBContext),
+      documentDB = _React$useContext.documentDB;
+
+  var ddbGet = useCallback(function (params) {
+    return documentDB.send(new GetCommand(params));
+  }, [documentDB]);
+  var ddbPut = useCallback(function (params) {
+    return documentDB.send(new PutCommand(params));
+  }, [documentDB]);
+  var ddbUpdate = useCallback(function (params) {
+    return documentDB.send(new UpdateCommand(params));
+  }, [documentDB]);
+  return {
+    documentDB: documentDB,
+    ddbGet: documentDB && ddbGet,
+    ddbPut: documentDB && ddbPut,
+    ddbUpdate: documentDB && ddbUpdate
+  };
+};
+
+export default useDDB;
 export { DDBProvider };

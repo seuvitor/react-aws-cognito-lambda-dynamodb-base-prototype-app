@@ -51,5 +51,11 @@ const MessageProvider = ({ children }) => {
       null));
 };
 
-export default MessageContext;
+const useMessage = () => {
+  const { showMessage } = React.useContext(MessageContext);
+
+  return { showMessage };
+};
+
+export default useMessage;
 export { MessageProvider };

@@ -1,7 +1,7 @@
-import MessageContext from './MessageContext';
-import UserContext from './UserContext';
-import DDBContext from './DDBContext';
-import LambdaContext from './LambdaContext';
-import AppConfigContext, { makeAppConfig } from './AppConfigContext';
+import useMessage from './MessageContext';
+import useUser from './UserContext';
+import useDDB from './DDBContext';
+import useLambda from './LambdaContext';
+import useAppConfig, { makeAppConfig } from './AppConfigContext';
 import BaseApp from './BaseApp';
-export { MessageContext, UserContext, DDBContext, LambdaContext, AppConfigContext, makeAppConfig, BaseApp };
+export { useMessage, useUser, useDDB, useLambda, useAppConfig, makeAppConfig, BaseApp };

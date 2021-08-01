@@ -2,14 +2,14 @@ import React from 'react';
 
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 
-import UserContext from './UserContext';
+import useUser from './UserContext';
 
 const e = React.createElement;
 
 const LambdaContext = React.createContext();
 
 const LambdaProvider = ({ children }) => {
-  const { user: { accessToken }, awsConfig, awsCredentials } = React.useContext(UserContext);
+  const { user: { accessToken }, awsConfig, awsCredentials } = useUser();
   const [lambda, setLambda] = React.useState();
 
   React.useEffect(() => {
@@ -59,5 +59,11 @@ const LambdaProvider = ({ children }) => {
   return e(LambdaContext.Provider, { value: { invokeLambda: lambda && invokeLambda } }, children);
 };
 
-export default LambdaContext;
+const useLambda = () => {
+  const { invokeLambda } = React.useContext(LambdaContext);
+
+  return { invokeLambda };
+};
+
+export default useLambda;
 export { LambdaProvider };
