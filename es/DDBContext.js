@@ -1,5 +1,6 @@
 import React from 'react';
-import AWS from 'aws-sdk';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import UserContext from './UserContext';
 var e = React.createElement;
 var DDBContext = React.createContext();
@@ -17,7 +18,8 @@ var DDBProvider = function DDBProvider(_ref) {
 
   React.useEffect(function () {
     if (awsConfig) {
-      setDocumentDB(new AWS.DynamoDB.DocumentClient(awsConfig));
+      var ddbClient = new DynamoDBClient(awsConfig);
+      setDocumentDB(new DynamoDBDocumentClient(ddbClient));
     } else {
       setDocumentDB(undefined);
     }

@@ -1,7 +1,8 @@
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 import React from 'react';
-import AWS from 'aws-sdk';
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
+import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import AppConfigContext from './AppConfigContext';
 var e = React.createElement;
 var UserContext = React.createContext();
@@ -97,32 +98,32 @@ var UserProvider = function UserProvider(_ref) {
           return oldAwsConfig;
         }
 
-        return new AWS.Config({
+        return {
           region: appRegion,
           credentials: awsCredentials
-        });
+        };
       });
     } else {
       setAwsConfig(undefined);
     }
   }, [awsCredentials, appRegion]);
   var loginWithAwsCognitoIdentityPool = React.useCallback(function (idToken, accessToken) {
-    var _Logins;
+    var _logins;
 
-    var newCredentials = new AWS.CognitoIdentityCredentials(_extends({
-      IdentityPoolId: appIdentityPoolId
+    var newCredentials = fromCognitoIdentityPool(_extends({
+      client: new CognitoIdentityClient({
+        region: appRegion
+      }),
+      identityPoolId: appIdentityPoolId
     }, idToken && {
-      Logins: (_Logins = {}, _Logins[appUserPoolId] = idToken, _Logins)
-    }), {
-      region: appRegion
-    });
+      logins: (_logins = {}, _logins[appUserPoolId] = idToken, _logins)
+    }));
     return new Promise(function (resolve, reject) {
-      newCredentials.clearCachedId();
-      newCredentials.getPromise().then(function () {
+      newCredentials().then(function (creds) {
         setAwsCredentials(newCredentials);
         setUser(function (oldUser) {
           var idTokenPayload = idToken && JSON.parse(atob(idToken.split('.')[1]));
-          oldUser.identityId = newCredentials.identityId;
+          oldUser.identityId = creds.identityId;
           oldUser.id = idTokenPayload && idTokenPayload.sub;
           oldUser.name = idTokenPayload ? idTokenPayload.name : appMessages.LOGGED_OUT_USER;
           oldUser.email = idTokenPayload && idTokenPayload.email;

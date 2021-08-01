@@ -1,5 +1,7 @@
 import React from 'react';
-import AWS from 'aws-sdk';
+
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
+import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 
 import AppConfigContext from './AppConfigContext';
 
@@ -87,10 +89,10 @@ const UserProvider = ({ children }) => {
           oldAwsConfig.update({ credentials: awsCredentials });
           return oldAwsConfig;
         }
-        return new AWS.Config({
+        return {
           region: appRegion,
           credentials: awsCredentials
-        });
+        };
       });
     } else {
       setAwsConfig(undefined);
@@ -98,23 +100,20 @@ const UserProvider = ({ children }) => {
   }, [awsCredentials, appRegion]);
 
   const loginWithAwsCognitoIdentityPool = React.useCallback((idToken, accessToken) => {
-    const newCredentials = new AWS.CognitoIdentityCredentials(
-      {
-        IdentityPoolId: appIdentityPoolId,
-        ...(idToken && { Logins: { [appUserPoolId]: idToken } })
-      },
-      {
+    const newCredentials = fromCognitoIdentityPool({
+      client: new CognitoIdentityClient({
         region: appRegion
-      }
-    );
+      }),
+      identityPoolId: appIdentityPoolId,
+      ...(idToken && { logins: { [appUserPoolId]: idToken } })
+    });
 
     return new Promise((resolve, reject) => {
-      newCredentials.clearCachedId();
-      newCredentials.getPromise().then(() => {
+      newCredentials().then((creds) => {
         setAwsCredentials(newCredentials);
         setUser((oldUser) => {
           const idTokenPayload = idToken && JSON.parse(atob(idToken.split('.')[1]));
-          oldUser.identityId = newCredentials.identityId;
+          oldUser.identityId = creds.identityId;
           oldUser.id = idTokenPayload && idTokenPayload.sub;
           oldUser.name = idTokenPayload ? idTokenPayload.name : appMessages.LOGGED_OUT_USER;
           oldUser.email = idTokenPayload && idTokenPayload.email;

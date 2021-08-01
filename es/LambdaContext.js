@@ -1,5 +1,5 @@
 import React from 'react';
-import AWS from 'aws-sdk';
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import UserContext from './UserContext';
 var e = React.createElement;
 var LambdaContext = React.createContext();
@@ -18,7 +18,7 @@ var LambdaProvider = function LambdaProvider(_ref) {
 
   React.useEffect(function () {
     if (awsConfig) {
-      setLambda(new AWS.Lambda(awsConfig));
+      setLambda(new LambdaClient(awsConfig));
     } else {
       setLambda(undefined);
     }
@@ -50,13 +50,14 @@ var LambdaProvider = function LambdaProvider(_ref) {
       params.Payload = JSON.stringify(payload);
     }
 
+    var command = new InvokeCommand(params);
     return new Promise(function (resolve, reject) {
-      lambda.invoke(params).promise().then(function (data) {
+      lambda.send(command).then(function (data) {
         if (!data.StatusCode || data.StatusCode !== 200 || !data.Payload) {
           reject(data);
         }
 
-        var responsePayload = JSON.parse(data.Payload);
+        var responsePayload = JSON.parse(Buffer.from(data.Payload));
 
         if (!responsePayload || !responsePayload.statusCode || responsePayload.statusCode !== 200) {
           reject(data);
