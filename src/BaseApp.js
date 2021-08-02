@@ -1,20 +1,16 @@
-import React from 'react';
+import { createElement as e, useLayoutEffect, useState } from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom';
-import * as MaterialUI from '@material-ui/core';
+import { Toolbar } from '@material-ui/core';
 
 import AuthRedirect from './AuthRedirect';
 import InfrastructureProvider from './InfrastructureProvider';
 import MyAppBar from './MyAppBar';
 import AppDrawer from './AppDrawer';
 
-const e = React.createElement;
-
-const { Toolbar } = MaterialUI;
-
 const BaseApp = ({ appConfig, appRoutes }) => {
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const [routes] = React.useState([
+  const [routes] = useState([
     ...appRoutes,
     {
       name: 'authentication',
@@ -24,7 +20,7 @@ const BaseApp = ({ appConfig, appRoutes }) => {
       component: AuthRedirect
     }]);
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (window.location.pathname === appConfig.appBasePath) {
       const search = new URLSearchParams(window.location.search);
       if (search.get('auth-redirect') !== null && search.get('code') !== null) {

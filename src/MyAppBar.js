@@ -1,14 +1,11 @@
-import React from 'react';
+import {
+  createElement as e,
+  Fragment,
+  useRef,
+  useState
+} from 'react';
 import { useLocation } from 'react-router-dom';
-import * as MaterialUI from '@material-ui/core';
-
-import useAppConfig from './AppConfigContext';
-import useMessage from './MessageContext';
-import useUser from './UserContext';
-
-const e = React.createElement;
-
-const {
+import {
   AppBar,
   Button,
   Divider,
@@ -18,13 +15,17 @@ const {
   MenuItem,
   Toolbar,
   Typography
-} = MaterialUI;
+} from '@material-ui/core';
+
+import useAppConfig from './AppConfigContext';
+import useMessage from './MessageContext';
+import useUser from './UserContext';
 
 const LoginButton = () => {
   const { appConfig: { appExternalLoginUrl, hideLogin } } = useAppConfig();
   const { user: { name: userName } } = useUser();
 
-  return (userName || hideLogin) ? null : e(React.Fragment, null,
+  return (userName || hideLogin) ? null : e(Fragment, null,
     e(Button, { color: 'inherit', href: appExternalLoginUrl }, 'Login'));
 };
 
@@ -32,8 +33,8 @@ const AccountButton = () => {
   const { appConfig: { appMessages, hideLogin } } = useAppConfig();
   const { showMessage } = useMessage();
   const { user: { name: userName }, logoff } = useUser();
-  const [accountMenuOpened, setAccountMenuOpened] = React.useState(false);
-  const accountMenuRef = React.useRef(null);
+  const [accountMenuOpened, setAccountMenuOpened] = useState(false);
+  const accountMenuRef = useRef(null);
 
   const handleAccountMenuClick = () => {
     setAccountMenuOpened(true);
@@ -52,7 +53,7 @@ const AccountButton = () => {
     setAccountMenuOpened(false);
   };
 
-  return (!userName || hideLogin) ? null : e(React.Fragment, null,
+  return (!userName || hideLogin) ? null : e(Fragment, null,
     e(IconButton, { color: 'inherit', ref: accountMenuRef, onClick: handleAccountMenuClick },
       e(Icon, null, 'account_circle')),
     e(Menu,

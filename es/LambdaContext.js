@@ -1,8 +1,7 @@
-import React from 'react';
+import { createContext, createElement as e, useCallback, useContext, useEffect, useState } from 'react';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import useUser from './UserContext';
-var e = React.createElement;
-var LambdaContext = React.createContext();
+var LambdaContext = createContext();
 
 var LambdaProvider = function LambdaProvider(_ref) {
   var children = _ref.children;
@@ -12,18 +11,18 @@ var LambdaProvider = function LambdaProvider(_ref) {
       awsConfig = _useUser.awsConfig,
       awsCredentials = _useUser.awsCredentials;
 
-  var _React$useState = React.useState(),
-      lambda = _React$useState[0],
-      setLambda = _React$useState[1];
+  var _useState = useState(),
+      lambda = _useState[0],
+      setLambda = _useState[1];
 
-  React.useEffect(function () {
+  useEffect(function () {
     if (awsConfig) {
       setLambda(new LambdaClient(awsConfig));
     } else {
       setLambda(undefined);
     }
   }, [awsConfig]);
-  React.useEffect(function () {
+  useEffect(function () {
     if (awsCredentials) {
       setLambda(function (oldLambda) {
         if (oldLambda) {
@@ -36,7 +35,7 @@ var LambdaProvider = function LambdaProvider(_ref) {
       });
     }
   }, [awsCredentials]);
-  var invokeLambda = React.useCallback(function (functionName, payload) {
+  var invokeLambda = useCallback(function (functionName, payload) {
     var params = {
       FunctionName: functionName,
       ClientContext: btoa(JSON.stringify({
@@ -77,8 +76,8 @@ var LambdaProvider = function LambdaProvider(_ref) {
 };
 
 var useLambda = function useLambda() {
-  var _React$useContext = React.useContext(LambdaContext),
-      invokeLambda = _React$useContext.invokeLambda;
+  var _useContext = useContext(LambdaContext),
+      invokeLambda = _useContext.invokeLambda;
 
   return {
     invokeLambda: invokeLambda

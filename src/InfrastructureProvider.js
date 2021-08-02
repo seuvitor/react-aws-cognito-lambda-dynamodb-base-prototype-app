@@ -1,4 +1,4 @@
-import React from 'react';
+import { createElement as e } from 'react';
 
 import AppThemeProvider from './AppThemeProvider';
 import { MessageProvider } from './MessageContext';
@@ -6,8 +6,6 @@ import { UserProvider } from './UserContext';
 import { DDBProvider } from './DDBContext';
 import { LambdaProvider } from './LambdaContext';
 import { AppConfigProvider } from './AppConfigContext';
-
-const e = React.createElement;
 
 const InfrastructureProvider = ({ appConfig, children }) => (
   e(AppThemeProvider, null,

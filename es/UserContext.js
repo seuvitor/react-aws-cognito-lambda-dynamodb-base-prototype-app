@@ -1,15 +1,14 @@
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-import React from 'react';
+import { createContext, createElement as e, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import useAppConfig from './AppConfigContext';
-var e = React.createElement;
-var UserContext = React.createContext();
+var UserContext = createContext();
 
 var useSetInterval = function useSetInterval(callback, seconds) {
-  var intervalRef = React.useRef();
-  var cancel = React.useCallback(function () {
+  var intervalRef = useRef();
+  var cancel = useCallback(function () {
     var interval = intervalRef.current;
 
     if (interval) {
@@ -17,7 +16,7 @@ var useSetInterval = function useSetInterval(callback, seconds) {
       clearInterval(interval);
     }
   }, [intervalRef]);
-  React.useEffect(function () {
+  useEffect(function () {
     intervalRef.current = setInterval(callback, seconds);
     return cancel;
   }, [callback, seconds, cancel]);
@@ -38,7 +37,7 @@ var UserProvider = function UserProvider(_ref) {
       appRefreshTokenStorageKey = _useAppConfig$appConf.appRefreshTokenStorageKey,
       appMessages = _useAppConfig$appConf.appMessages;
 
-  var _React$useState = React.useState({
+  var _useState = useState({
     identityId: undefined,
     id: undefined,
     name: undefined,
@@ -47,32 +46,32 @@ var UserProvider = function UserProvider(_ref) {
     idToken: undefined,
     accessToken: undefined
   }),
-      user = _React$useState[0],
-      setUser = _React$useState[1];
+      user = _useState[0],
+      setUser = _useState[1];
 
-  var _React$useState2 = React.useState(sessionStorage.getItem(appRefreshTokenStorageKey)),
-      refreshToken = _React$useState2[0],
-      setRefreshToken = _React$useState2[1];
+  var _useState2 = useState(sessionStorage.getItem(appRefreshTokenStorageKey)),
+      refreshToken = _useState2[0],
+      setRefreshToken = _useState2[1];
 
-  var _React$useState3 = React.useState(undefined),
-      awsConfig = _React$useState3[0],
-      setAwsConfig = _React$useState3[1];
+  var _useState3 = useState(undefined),
+      awsConfig = _useState3[0],
+      setAwsConfig = _useState3[1];
 
-  var _React$useState4 = React.useState(25 * 60000),
-      refreshTokenInterval = _React$useState4[0];
+  var _useState4 = useState(25 * 60000),
+      refreshTokenInterval = _useState4[0];
 
-  var _React$useState5 = React.useState(undefined),
-      awsCredentials = _React$useState5[0],
-      setAwsCredentials = _React$useState5[1];
+  var _useState5 = useState(undefined),
+      awsCredentials = _useState5[0],
+      setAwsCredentials = _useState5[1];
 
-  React.useEffect(function () {
+  useEffect(function () {
     if (refreshToken) {
       sessionStorage.setItem(appRefreshTokenStorageKey, refreshToken);
     } else {
       sessionStorage.removeItem(appRefreshTokenStorageKey);
     }
   }, [refreshToken, appRefreshTokenStorageKey]);
-  var logoff = React.useCallback(function () {
+  var logoff = useCallback(function () {
     return new Promise(function (resolve) {
       setUser({
         identityId: undefined,
@@ -88,7 +87,7 @@ var UserProvider = function UserProvider(_ref) {
       resolve();
     });
   }, []);
-  React.useEffect(function () {
+  useEffect(function () {
     if (awsCredentials) {
       setAwsConfig(function (oldAwsConfig) {
         if (oldAwsConfig) {
@@ -107,7 +106,7 @@ var UserProvider = function UserProvider(_ref) {
       setAwsConfig(undefined);
     }
   }, [awsCredentials, appRegion]);
-  var loginWithAwsCognitoIdentityPool = React.useCallback(function (idToken, accessToken) {
+  var loginWithAwsCognitoIdentityPool = useCallback(function (idToken, accessToken) {
     var _logins;
 
     var newCredentials = fromCognitoIdentityPool(_extends({
@@ -148,7 +147,7 @@ var UserProvider = function UserProvider(_ref) {
       });
     });
   }, [appIdentityPoolId, appRegion, appUserPoolId, appMessages]);
-  var refreshIdAndAccessTokens = React.useCallback(function (refreshTokenParam) {
+  var refreshIdAndAccessTokens = useCallback(function (refreshTokenParam) {
     return new Promise(function (resolve, reject) {
       if (refreshTokenParam) {
         fetch(appAuthUrl, {
@@ -179,16 +178,16 @@ var UserProvider = function UserProvider(_ref) {
       }
     });
   }, [loginWithAwsCognitoIdentityPool, appAuthUrl, appClientId, appMessages]);
-  var scheduledRefreshIdAndAccessTokens = React.useCallback(function () {
+  var scheduledRefreshIdAndAccessTokens = useCallback(function () {
     refreshIdAndAccessTokens(refreshToken)["catch"](function (err) {
       console.error(appMessages.LOG_COULD_NOT_REFRESH_TOKENS, err);
     });
   }, [refreshToken, refreshIdAndAccessTokens, appMessages]);
   useSetInterval(scheduledRefreshIdAndAccessTokens, refreshTokenInterval);
-  var loginAnonymously = React.useCallback(function () {
+  var loginAnonymously = useCallback(function () {
     return loginWithAwsCognitoIdentityPool();
   }, [loginWithAwsCognitoIdentityPool]);
-  var loginWithAuthorizationCode = React.useCallback(function (authorizationCode) {
+  var loginWithAuthorizationCode = useCallback(function (authorizationCode) {
     return new Promise(function (resolve, reject) {
       fetch(appAuthUrl, {
         method: 'POST',
@@ -218,7 +217,7 @@ var UserProvider = function UserProvider(_ref) {
       });
     });
   }, [refreshIdAndAccessTokens, appAuthRedirect, appAuthUrl, appClientId, appMessages]);
-  React.useEffect(function () {
+  useEffect(function () {
     if (refreshToken && !awsCredentials) {
       refreshIdAndAccessTokens(refreshToken)["catch"](function (err) {
         console.error(appMessages.LOG_COULD_NOT_REFRESH_TOKENS, err);
@@ -238,13 +237,13 @@ var UserProvider = function UserProvider(_ref) {
 };
 
 var useUser = function useUser() {
-  var _React$useContext = React.useContext(UserContext),
-      user = _React$useContext.user,
-      awsConfig = _React$useContext.awsConfig,
-      awsCredentials = _React$useContext.awsCredentials,
-      loginAnonymously = _React$useContext.loginAnonymously,
-      loginWithAuthorizationCode = _React$useContext.loginWithAuthorizationCode,
-      logoff = _React$useContext.logoff;
+  var _useContext = useContext(UserContext),
+      user = _useContext.user,
+      awsConfig = _useContext.awsConfig,
+      awsCredentials = _useContext.awsCredentials,
+      loginAnonymously = _useContext.loginAnonymously,
+      loginWithAuthorizationCode = _useContext.loginWithAuthorizationCode,
+      logoff = _useContext.logoff;
 
   return {
     user: user,

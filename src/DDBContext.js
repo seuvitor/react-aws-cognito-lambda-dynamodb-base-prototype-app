@@ -1,4 +1,11 @@
-import React, { useCallback } from 'react';
+import {
+  createContext,
+  createElement as e,
+  useCallback,
+  useContext,
+  useEffect,
+  useState
+} from 'react';
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
@@ -10,15 +17,13 @@ import {
 
 import useUser from './UserContext';
 
-const e = React.createElement;
-
-const DDBContext = React.createContext();
+const DDBContext = createContext();
 
 const DDBProvider = ({ children }) => {
   const { awsConfig, awsCredentials } = useUser();
-  const [documentDB, setDocumentDB] = React.useState();
+  const [documentDB, setDocumentDB] = useState();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (awsConfig) {
       const ddbClient = new DynamoDBClient(awsConfig);
       setDocumentDB(new DynamoDBDocumentClient(ddbClient));
@@ -27,7 +32,7 @@ const DDBProvider = ({ children }) => {
     }
   }, [awsConfig]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (awsCredentials) {
       setDocumentDB((oldDocumentDB) => {
         if (oldDocumentDB) {
@@ -42,7 +47,7 @@ const DDBProvider = ({ children }) => {
 };
 
 const useDDB = () => {
-  const { documentDB } = React.useContext(DDBContext);
+  const { documentDB } = useContext(DDBContext);
 
   const ddbGet = useCallback(
     (params) => documentDB.send(new GetCommand(params)),

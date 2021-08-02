@@ -1,17 +1,23 @@
-import React from 'react';
+import {
+  createContext,
+  createElement as e,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 
 import useAppConfig from './AppConfigContext';
 
-const e = React.createElement;
-
-const UserContext = React.createContext();
+const UserContext = createContext();
 
 const useSetInterval = (callback, seconds) => {
-  const intervalRef = React.useRef();
-  const cancel = React.useCallback(() => {
+  const intervalRef = useRef();
+  const cancel = useCallback(() => {
     const interval = intervalRef.current;
     if (interval) {
       intervalRef.current = undefined;
@@ -19,7 +25,7 @@ const useSetInterval = (callback, seconds) => {
     }
   }, [intervalRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     intervalRef.current = setInterval(callback, seconds);
     return cancel;
   }, [callback, seconds, cancel]);
@@ -41,7 +47,7 @@ const UserProvider = ({ children }) => {
     }
   } = useAppConfig();
 
-  const [user, setUser] = React.useState({
+  const [user, setUser] = useState({
     identityId: undefined,
     id: undefined,
     name: undefined,
@@ -50,14 +56,14 @@ const UserProvider = ({ children }) => {
     idToken: undefined,
     accessToken: undefined
   });
-  const [refreshToken, setRefreshToken] = React.useState(
+  const [refreshToken, setRefreshToken] = useState(
     sessionStorage.getItem(appRefreshTokenStorageKey)
   );
-  const [awsConfig, setAwsConfig] = React.useState(undefined);
-  const [refreshTokenInterval] = React.useState(25 * 60000);
-  const [awsCredentials, setAwsCredentials] = React.useState(undefined);
+  const [awsConfig, setAwsConfig] = useState(undefined);
+  const [refreshTokenInterval] = useState(25 * 60000);
+  const [awsCredentials, setAwsCredentials] = useState(undefined);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (refreshToken) {
       sessionStorage.setItem(appRefreshTokenStorageKey, refreshToken);
     } else {
@@ -65,7 +71,7 @@ const UserProvider = ({ children }) => {
     }
   }, [refreshToken, appRefreshTokenStorageKey]);
 
-  const logoff = React.useCallback(() => (
+  const logoff = useCallback(() => (
     new Promise((resolve) => {
       setUser({
         identityId: undefined,
@@ -82,7 +88,7 @@ const UserProvider = ({ children }) => {
     })
   ), []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (awsCredentials) {
       setAwsConfig((oldAwsConfig) => {
         if (oldAwsConfig) {
@@ -99,7 +105,7 @@ const UserProvider = ({ children }) => {
     }
   }, [awsCredentials, appRegion]);
 
-  const loginWithAwsCognitoIdentityPool = React.useCallback((idToken, accessToken) => {
+  const loginWithAwsCognitoIdentityPool = useCallback((idToken, accessToken) => {
     const newCredentials = fromCognitoIdentityPool({
       client: new CognitoIdentityClient({
         region: appRegion
@@ -139,7 +145,7 @@ const UserProvider = ({ children }) => {
     });
   }, [appIdentityPoolId, appRegion, appUserPoolId, appMessages]);
 
-  const refreshIdAndAccessTokens = React.useCallback((refreshTokenParam) => (
+  const refreshIdAndAccessTokens = useCallback((refreshTokenParam) => (
     new Promise((resolve, reject) => {
       if (refreshTokenParam) {
         fetch(appAuthUrl, {
@@ -169,7 +175,7 @@ const UserProvider = ({ children }) => {
     })
   ), [loginWithAwsCognitoIdentityPool, appAuthUrl, appClientId, appMessages]);
 
-  const scheduledRefreshIdAndAccessTokens = React.useCallback(() => {
+  const scheduledRefreshIdAndAccessTokens = useCallback(() => {
     refreshIdAndAccessTokens(refreshToken).catch((err) => {
       console.error(appMessages.LOG_COULD_NOT_REFRESH_TOKENS, err);
     });
@@ -177,11 +183,11 @@ const UserProvider = ({ children }) => {
 
   useSetInterval(scheduledRefreshIdAndAccessTokens, refreshTokenInterval);
 
-  const loginAnonymously = React.useCallback(() => (
+  const loginAnonymously = useCallback(() => (
     loginWithAwsCognitoIdentityPool()
   ), [loginWithAwsCognitoIdentityPool]);
 
-  const loginWithAuthorizationCode = React.useCallback((authorizationCode) => (
+  const loginWithAuthorizationCode = useCallback((authorizationCode) => (
     new Promise((resolve, reject) => {
       fetch(appAuthUrl, {
         method: 'POST',
@@ -210,7 +216,7 @@ const UserProvider = ({ children }) => {
     })
   ), [refreshIdAndAccessTokens, appAuthRedirect, appAuthUrl, appClientId, appMessages]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (refreshToken && !awsCredentials) {
       refreshIdAndAccessTokens(refreshToken).catch((err) => {
         console.error(appMessages.LOG_COULD_NOT_REFRESH_TOKENS, err);
@@ -240,7 +246,7 @@ const useUser = () => {
     loginAnonymously,
     loginWithAuthorizationCode,
     logoff
-  } = React.useContext(UserContext);
+  } = useContext(UserContext);
 
   return {
     user,

@@ -1,6 +1,5 @@
-import React from 'react';
-var e = React.createElement;
-var AppConfigContext = React.createContext();
+import { createContext, createElement as e, useContext } from 'react';
+var AppConfigContext = createContext();
 
 var makeAppConfig = function makeAppConfig(_ref) {
   var appHost = _ref.appHost,
@@ -48,8 +47,8 @@ var AppConfigProvider = function AppConfigProvider(_ref2) {
 };
 
 var useAppConfig = function useAppConfig() {
-  var _React$useContext = React.useContext(AppConfigContext),
-      appConfig = _React$useContext.appConfig;
+  var _useContext = useContext(AppConfigContext),
+      appConfig = _useContext.appConfig;
 
   return {
     appConfig: appConfig

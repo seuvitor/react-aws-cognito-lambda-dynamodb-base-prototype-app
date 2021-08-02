@@ -1,17 +1,21 @@
-import React from 'react';
-import * as MaterialUI from '@material-ui/core';
+import {
+  createContext,
+  createElement as e,
+  useCallback,
+  useContext,
+  useEffect,
+  useState
+} from 'react';
+import { Icon, IconButton, Snackbar } from '@material-ui/core';
 
-const e = React.createElement;
-const { Icon, IconButton, Snackbar } = MaterialUI;
-
-const MessageContext = React.createContext();
+const MessageContext = createContext();
 
 const MessageProvider = ({ children }) => {
-  const [snackPack, setSnackPack] = React.useState([]);
-  const [message, setMessage] = React.useState(undefined);
-  const [showing, setShowing] = React.useState(false);
+  const [snackPack, setSnackPack] = useState([]);
+  const [message, setMessage] = useState(undefined);
+  const [showing, setShowing] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (snackPack.length && !message) {
       setMessage(snackPack[0]);
       setSnackPack((prev) => prev.slice(1));
@@ -21,7 +25,7 @@ const MessageProvider = ({ children }) => {
     }
   }, [snackPack, message, showing]);
 
-  const showMessage = React.useCallback((newMessage) => {
+  const showMessage = useCallback((newMessage) => {
     setSnackPack((prev) => [...prev, newMessage]);
   }, []);
 
@@ -52,7 +56,7 @@ const MessageProvider = ({ children }) => {
 };
 
 const useMessage = () => {
-  const { showMessage } = React.useContext(MessageContext);
+  const { showMessage } = useContext(MessageContext);
 
   return { showMessage };
 };

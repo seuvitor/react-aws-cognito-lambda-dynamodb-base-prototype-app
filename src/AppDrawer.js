@@ -1,13 +1,6 @@
-import React from 'react';
+import { createElement as e } from 'react';
 import { NavLink } from 'react-router-dom';
-import * as MaterialUI from '@material-ui/core';
-
-import useAppConfig from './AppConfigContext';
-import useUser from './UserContext';
-
-const e = React.createElement;
-
-const {
+import {
   Box,
   Divider,
   Drawer,
@@ -15,7 +8,10 @@ const {
   ListItem,
   ListItemText,
   Toolbar
-} = MaterialUI;
+} from '@material-ui/core';
+
+import useAppConfig from './AppConfigContext';
+import useUser from './UserContext';
 
 const AppDrawer = ({ routes, drawerOpen, setDrawerOpen }) => {
   const { appConfig: { appLogoUrl } } = useAppConfig();

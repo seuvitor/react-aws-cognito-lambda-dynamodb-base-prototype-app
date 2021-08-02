@@ -1,18 +1,10 @@
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-import React from 'react';
+import { createElement as e } from 'react';
 import { NavLink } from 'react-router-dom';
-import * as MaterialUI from '@material-ui/core';
+import { Box, Divider, Drawer, Icon, ListItem, ListItemText, Toolbar } from '@material-ui/core';
 import useAppConfig from './AppConfigContext';
 import useUser from './UserContext';
-var e = React.createElement;
-var Box = MaterialUI.Box,
-    Divider = MaterialUI.Divider,
-    Drawer = MaterialUI.Drawer,
-    Icon = MaterialUI.Icon,
-    ListItem = MaterialUI.ListItem,
-    ListItemText = MaterialUI.ListItemText,
-    Toolbar = MaterialUI.Toolbar;
 
 var AppDrawer = function AppDrawer(_ref) {
   var routes = _ref.routes,

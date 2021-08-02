@@ -1,33 +1,31 @@
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-import React from 'react';
+import { createElement as e, useLayoutEffect, useState } from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom';
-import * as MaterialUI from '@material-ui/core';
+import { Toolbar } from '@material-ui/core';
 import AuthRedirect from './AuthRedirect';
 import InfrastructureProvider from './InfrastructureProvider';
 import MyAppBar from './MyAppBar';
 import AppDrawer from './AppDrawer';
-var e = React.createElement;
-var Toolbar = MaterialUI.Toolbar;
 
 var BaseApp = function BaseApp(_ref) {
   var appConfig = _ref.appConfig,
       appRoutes = _ref.appRoutes;
 
-  var _React$useState = React.useState(false),
-      drawerOpen = _React$useState[0],
-      setDrawerOpen = _React$useState[1];
+  var _useState = useState(false),
+      drawerOpen = _useState[0],
+      setDrawerOpen = _useState[1];
 
-  var _React$useState2 = React.useState([].concat(appRoutes, [{
+  var _useState2 = useState([].concat(appRoutes, [{
     name: 'authentication',
     label: 'Athentication',
     path: '/authentication/:authorization_code',
     hideFromMenu: true,
     component: AuthRedirect
   }])),
-      routes = _React$useState2[0];
+      routes = _useState2[0];
 
-  React.useLayoutEffect(function () {
+  useLayoutEffect(function () {
     if (window.location.pathname === appConfig.appBasePath) {
       var search = new URLSearchParams(window.location.search);
 

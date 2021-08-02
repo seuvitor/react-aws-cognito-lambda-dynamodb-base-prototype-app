@@ -1,27 +1,23 @@
-import React from 'react';
-import * as MaterialUI from '@material-ui/core';
-var e = React.createElement;
-var Icon = MaterialUI.Icon,
-    IconButton = MaterialUI.IconButton,
-    Snackbar = MaterialUI.Snackbar;
-var MessageContext = React.createContext();
+import { createContext, createElement as e, useCallback, useContext, useEffect, useState } from 'react';
+import { Icon, IconButton, Snackbar } from '@material-ui/core';
+var MessageContext = createContext();
 
 var MessageProvider = function MessageProvider(_ref) {
   var children = _ref.children;
 
-  var _React$useState = React.useState([]),
-      snackPack = _React$useState[0],
-      setSnackPack = _React$useState[1];
+  var _useState = useState([]),
+      snackPack = _useState[0],
+      setSnackPack = _useState[1];
 
-  var _React$useState2 = React.useState(undefined),
-      message = _React$useState2[0],
-      setMessage = _React$useState2[1];
+  var _useState2 = useState(undefined),
+      message = _useState2[0],
+      setMessage = _useState2[1];
 
-  var _React$useState3 = React.useState(false),
-      showing = _React$useState3[0],
-      setShowing = _React$useState3[1];
+  var _useState3 = useState(false),
+      showing = _useState3[0],
+      setShowing = _useState3[1];
 
-  React.useEffect(function () {
+  useEffect(function () {
     if (snackPack.length && !message) {
       setMessage(snackPack[0]);
       setSnackPack(function (prev) {
@@ -32,7 +28,7 @@ var MessageProvider = function MessageProvider(_ref) {
       setShowing(false);
     }
   }, [snackPack, message, showing]);
-  var showMessage = React.useCallback(function (newMessage) {
+  var showMessage = useCallback(function (newMessage) {
     setSnackPack(function (prev) {
       return [].concat(prev, [newMessage]);
     });
@@ -72,8 +68,8 @@ var MessageProvider = function MessageProvider(_ref) {
 };
 
 var useMessage = function useMessage() {
-  var _React$useContext = React.useContext(MessageContext),
-      showMessage = _React$useContext.showMessage;
+  var _useContext = useContext(MessageContext),
+      showMessage = _useContext.showMessage;
 
   return {
     showMessage: showMessage

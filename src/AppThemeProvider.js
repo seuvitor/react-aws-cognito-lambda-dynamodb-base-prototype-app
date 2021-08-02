@@ -1,11 +1,8 @@
-import React from 'react';
-import * as MaterialUI from '@material-ui/core';
-
-const e = React.createElement;
-const { ThemeProvider } = MaterialUI;
+import { createElement as e, useState } from 'react';
+import { createTheme, ThemeProvider } from '@material-ui/core';
 
 const AppThemeProvider = ({ children }) => {
-  const [theme] = React.useState(MaterialUI.createMuiTheme({
+  const [theme] = useState(createTheme({
     palette: {
       primary: {
         main: '#556cd6'

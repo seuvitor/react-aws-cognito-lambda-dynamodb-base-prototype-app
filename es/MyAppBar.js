@@ -1,19 +1,9 @@
-import React from 'react';
+import { createElement as e, Fragment, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import * as MaterialUI from '@material-ui/core';
+import { AppBar, Button, Divider, Icon, IconButton, Menu, MenuItem, Toolbar, Typography } from '@material-ui/core';
 import useAppConfig from './AppConfigContext';
 import useMessage from './MessageContext';
 import useUser from './UserContext';
-var e = React.createElement;
-var AppBar = MaterialUI.AppBar,
-    Button = MaterialUI.Button,
-    Divider = MaterialUI.Divider,
-    Icon = MaterialUI.Icon,
-    IconButton = MaterialUI.IconButton,
-    Menu = MaterialUI.Menu,
-    MenuItem = MaterialUI.MenuItem,
-    Toolbar = MaterialUI.Toolbar,
-    Typography = MaterialUI.Typography;
 
 var LoginButton = function LoginButton() {
   var _useAppConfig = useAppConfig(),
@@ -24,7 +14,7 @@ var LoginButton = function LoginButton() {
   var _useUser = useUser(),
       userName = _useUser.user.name;
 
-  return userName || hideLogin ? null : e(React.Fragment, null, e(Button, {
+  return userName || hideLogin ? null : e(Fragment, null, e(Button, {
     color: 'inherit',
     href: appExternalLoginUrl
   }, 'Login'));
@@ -43,11 +33,11 @@ var AccountButton = function AccountButton() {
       userName = _useUser2.user.name,
       logoff = _useUser2.logoff;
 
-  var _React$useState = React.useState(false),
-      accountMenuOpened = _React$useState[0],
-      setAccountMenuOpened = _React$useState[1];
+  var _useState = useState(false),
+      accountMenuOpened = _useState[0],
+      setAccountMenuOpened = _useState[1];
 
-  var accountMenuRef = React.useRef(null);
+  var accountMenuRef = useRef(null);
 
   var handleAccountMenuClick = function handleAccountMenuClick() {
     setAccountMenuOpened(true);
@@ -66,7 +56,7 @@ var AccountButton = function AccountButton() {
     setAccountMenuOpened(false);
   };
 
-  return !userName || hideLogin ? null : e(React.Fragment, null, e(IconButton, {
+  return !userName || hideLogin ? null : e(Fragment, null, e(IconButton, {
     color: 'inherit',
     ref: accountMenuRef,
     onClick: handleAccountMenuClick
