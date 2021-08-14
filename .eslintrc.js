@@ -13,5 +13,10 @@ module.exports = {
     'comma-dangle': ['error', 'never'],
     'no-console': ['error', { allow: ['warn', 'error'] }],
     'no-param-reassign': ['error', { props: false }]
+  },
+  settings: {
+    react: {
+      version: 'detect'
+    }
   }
 };

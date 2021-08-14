@@ -48,7 +48,9 @@ const MessageProvider = ({ children }) => {
         open: showing,
         autoHideDuration: 5000,
         onClose: dismissMessage,
-        onExited: handleOnExited,
+        TransitionProps: {
+          onExited: handleOnExited
+        },
         message,
         action: e(IconButton, { color: 'inherit', onClick: dismissMessage }, e(Icon, null, 'close'))
       },

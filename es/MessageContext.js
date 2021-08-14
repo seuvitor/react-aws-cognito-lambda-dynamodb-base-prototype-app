@@ -58,7 +58,9 @@ var MessageProvider = function MessageProvider(_ref) {
     open: showing,
     autoHideDuration: 5000,
     onClose: dismissMessage,
-    onExited: handleOnExited,
+    TransitionProps: {
+      onExited: handleOnExited
+    },
     message: message,
     action: e(IconButton, {
       color: 'inherit',
