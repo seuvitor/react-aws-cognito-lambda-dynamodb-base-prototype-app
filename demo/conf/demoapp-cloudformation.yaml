@@ -1,0 +1,221 @@
+# $ aws cloudformation create-stack --stack-name demoapp --capabilities CAPABILITY_NAMED_IAM --template-body file://demoapp-cloudformation.yaml
+#
+# IAM user should have these privileges to create, update or delete the demoapp stack:
+#
+# {
+#     "Version": "2012-10-17",
+#     "Statement": [
+#         {
+#             "Effect": "Allow",
+#             "Action": [
+#                 "cloudformation:CreateStack",
+#                 "cloudformation:DeleteStack",
+#                 "cloudformation:UpdateStack"
+#             ],
+#             "Resource": "arn:aws:cloudformation:<your-aws-region>:<your-aws-account-id>:stack/demoapp/*"
+#         },
+#         {
+#             "Effect": "Allow",
+#             "Action": [
+#                 "cognito-idp:CreateUserPool"
+#             ],
+#             "Resource": "*"
+#         },
+#         {
+#             "Effect": "Allow",
+#             "Action": [
+#                 "cognito-idp:CreateUserPoolClient",
+#                 "cognito-idp:CreateUserPoolDomain",
+#                 "cognito-idp:DeleteUserPool",
+#                 "cognito-idp:DeleteUserPoolClient",
+#                 "cognito-idp:DeleteUserPoolDomain",
+#                 "cognito-idp:ListTagsForResource",
+#                 "cognito-idp:UpdateUserPool",
+#                 "cognito-idp:UpdateUserPoolClient"
+#             ],
+#             "Resource": "arn:aws:cognito-idp:<your-aws-region>:<your-aws-account-id>:userpool/*"
+#         },
+#         {
+#             "Effect": "Allow",
+#             "Action": [
+#                 "cognito-identity:CreateIdentityPool",
+#                 "cognito-identity:DeleteIdentityPool",
+#                 "cognito-identity:SetIdentityPoolRoles",
+#                 "cognito-identity:UpdateIdentityPool"
+#             ],
+#             "Resource": "arn:aws:cognito-identity:<your-aws-region>:<your-aws-account-id>:identitypool/*"
+#         },
+#         {
+#             "Effect": "Allow",
+#             "Action": [
+#                 "iam:CreateRole",
+#                 "iam:DeleteRole",
+#                 "iam:DeleteRolePolicy",
+#                 "iam:GetRole",
+#                 "iam:GetRolePolicy",
+#                 "iam:PassRole",
+#                 "iam:PutRolePolicy",
+#                 "iam:UpdateAssumeRolePolicy"
+#             ],
+#             "Resource": [
+#                 "arn:aws:iam::<your-aws-account-id>:role/Cognito_demoappAuth_Role",
+#                 "arn:aws:iam::<your-aws-account-id>:role/Cognito_demoappUnauth_Role"
+#             ]
+#         }
+#     ]
+# }
+
+Resources:
+
+  DemoAppUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: false
+      Schema:
+        - Name: name
+          Required: true
+      UsernameAttributes:
+        - email
+      UsernameConfiguration:
+        CaseSensitive: false
+      UserPoolName: demoapp
+
+  DemoAppUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain:
+        !Sub
+          - 'demoapp-${RandomGUID}'
+          - { RandomGUID: !Select [0, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId ]]]] }
+      UserPoolId: !Ref DemoAppUserPool
+
+  DemoAppUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+      CallbackURLs:
+        - http://localhost:5000/?auth-redirect
+      ClientName: demoapp
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+      LogoutURLs:
+        - http://localhost:5000/?logoff-redirec
+      PreventUserExistenceErrors: ENABLED
+      SupportedIdentityProviders:
+        - COGNITO
+      UserPoolId: !Ref DemoAppUserPool
+
+  DemoAppIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowClassicFlow: false
+      AllowUnauthenticatedIdentities: true
+      CognitoIdentityProviders:
+        - ClientId: !Ref DemoAppUserPoolClient
+          ProviderName: !GetAtt DemoAppUserPool.ProviderName
+          ServerSideTokenCheck: false
+      IdentityPoolName: demoapp
+
+  DemoAppIdentityPoolRoleAttachment:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref DemoAppIdentityPool
+      Roles:
+        "authenticated": !GetAtt DemoAppAuthRole.Arn
+        "unauthenticated": !GetAtt DemoAppUnauthRole.Arn
+
+  DemoAppAuthRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: 'sts:AssumeRoleWithWebIdentity'
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud": !Ref DemoAppIdentityPool
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": "authenticated"
+      Policies:
+        - PolicyName: Cognito_demoappAuth_Role_inline
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "mobileanalytics:PutEvents"
+                  - "cognito-sync:*"
+                  - "cognito-identity:*"
+                Resource: '*'
+      RoleName: Cognito_demoappAuth_Role
+
+  DemoAppUnauthRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: 'sts:AssumeRoleWithWebIdentity'
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud": !Ref DemoAppIdentityPool
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": "unauthenticated"
+      Policies:
+        - PolicyName: Cognito_demoappUnauth_Role_inline
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "mobileanalytics:PutEvents"
+                  - "cognito-sync:*"
+                Resource: '*'
+      RoleName: Cognito_demoappUnauth_Role
+
+
+Outputs:
+
+  UserPoolId:
+    Value: !GetAtt DemoAppUserPool.ProviderName
+    Export:
+      Name: DEMO-APP-USER-POOL-ID
+
+  UserPoolDomain:
+    Value: !Ref DemoAppUserPoolDomain
+    Export:
+      Name: DEMO-APP-USER-POOL-DOMAIN
+
+  UserPoolAppClientId:
+    Value: !Ref DemoAppUserPoolClient
+    Export:
+      Name: DEMO-APP-USER-POOL-APP-CLIENT-ID
+
+  IdentityPoolId:
+    Value: !Ref DemoAppIdentityPool
+    Export:
+      Name: DEMO-APP-IDENTITY-POOL-ID

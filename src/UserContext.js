@@ -1,6 +1,5 @@
-import {
+import React, {
   createContext,
-  createElement as e,
   useCallback,
   useContext,
   useEffect,
@@ -224,18 +223,17 @@ const UserProvider = ({ children }) => {
     }
   }, [refreshToken, awsCredentials, refreshIdAndAccessTokens, appMessages]);
 
-  return e(UserContext.Provider,
-    {
-      value: {
+  return <UserContext.Provider
+      value={{
         user,
         awsConfig,
         awsCredentials,
         loginAnonymously,
         loginWithAuthorizationCode,
         logoff
-      }
-    },
-    children);
+      }}>
+      {children}
+    </UserContext.Provider>;
 };
 
 const useUser = () => {

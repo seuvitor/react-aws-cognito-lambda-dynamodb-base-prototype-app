@@ -1,6 +1,5 @@
-import {
+import React, {
   createContext,
-  createElement as e,
   useCallback,
   useContext,
   useEffect,
@@ -61,7 +60,9 @@ const LambdaProvider = ({ children }) => {
     });
   }, [lambda, accessToken]);
 
-  return e(LambdaContext.Provider, { value: { invokeLambda: lambda && invokeLambda } }, children);
+  return <LambdaContext.Provider value={{ invokeLambda: lambda && invokeLambda }}>
+      {children}
+    </LambdaContext.Provider>;
 };
 
 const useLambda = () => {

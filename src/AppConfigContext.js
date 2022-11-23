@@ -1,4 +1,4 @@
-import { createContext, createElement as e, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 
 const AppConfigContext = createContext();
 
@@ -39,10 +39,11 @@ const makeAppConfig = ({
   };
 };
 
-const AppConfigProvider = ({
-  appConfig,
-  children
-}) => e(AppConfigContext.Provider, { value: { appConfig } }, children);
+const AppConfigProvider = ({ appConfig, children }) => (
+  <AppConfigContext.Provider value={{ appConfig }}>
+    {children}
+  </AppConfigContext.Provider>
+);
 
 const useAppConfig = () => {
   const { appConfig } = useContext(AppConfigContext);

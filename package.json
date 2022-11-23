@@ -1,45 +1,43 @@
 {
   "name": "react-aws-cognito-lambda-dynamodb-base-prototype-app",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Base components for prototyping a serverless React app making use of AWS Cognito, Lambda and DynamoDB",
-  "main": "lib/index.js",
-  "module": "es/index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "files": [
-    "css",
-    "es",
-    "lib",
-    "umd"
+    "dist/cjs",
+    "dist/esm",
+    "src"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/seuvitor/react-aws-cognito-lambda-dynamodb-base-prototype-app.git"
   },
   "scripts": {
-    "build": "nwb build-react-component --no-demo",
-    "start": "nwb serve-react-demo --port 5000",
+    "build": "node custom-esbuild.js",
+    "start": "esbuild demo/src/index.js --loader:.js=jsx --bundle --sourcemap --servedir=demo/public --serve=5000",
     "lint": "eslint --fix ./src"
   },
   "author": "Vitor Dantas",
   "license": "MIT",
   "devDependencies": {
+    "esbuild": "^0.15.15",
     "eslint": "^7.32.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.24.0",
-    "eslint-plugin-react": "^7.24.0",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "nwb": "^0.25.2"
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-react-hooks": "^4.6.0"
   },
-  "dependencies": {
-    "@aws-sdk/client-cognito-identity": "^3.26.0",
-    "@aws-sdk/client-docdb": "^3.26.0",
-    "@aws-sdk/client-dynamodb": "^3.26.0",
-    "@aws-sdk/client-lambda": "^3.26.0",
-    "@aws-sdk/credential-provider-cognito-identity": "^3.26.0",
-    "@aws-sdk/lib-dynamodb": "^3.26.0",
-    "@aws-sdk/util-dynamodb": "^3.26.0",
-    "@material-ui/core": "^4.12.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-router-dom": "^5.2.0"
+  "peerDependencies": {
+    "@aws-sdk/client-cognito-identity": "^3.215.0",
+    "@aws-sdk/client-docdb": "^3.215.0",
+    "@aws-sdk/client-dynamodb": "^3.215.0",
+    "@aws-sdk/client-lambda": "^3.215.0",
+    "@aws-sdk/credential-provider-cognito-identity": "^3.215.0",
+    "@aws-sdk/lib-dynamodb": "^3.215.0",
+    "@aws-sdk/util-dynamodb": "^3.215.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.3"
   }
 }

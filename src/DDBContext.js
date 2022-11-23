@@ -1,6 +1,5 @@
-import {
+import React, {
   createContext,
-  createElement as e,
   useCallback,
   useContext,
   useEffect,
@@ -43,7 +42,7 @@ const DDBProvider = ({ children }) => {
     }
   }, [awsCredentials]);
 
-  return e(DDBContext.Provider, { value: { documentDB } }, children);
+  return <DDBContext.Provider value={{ documentDB }}>{children}</DDBContext.Provider>;
 };
 
 const useDDB = () => {

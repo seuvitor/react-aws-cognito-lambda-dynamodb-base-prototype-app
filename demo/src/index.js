@@ -1,7 +1,8 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
-import { BaseApp, makeAppConfig } from '../../src';
+import { makeAppConfig } from '../../src';
+import DemoBaseApp from './DemoBaseApp';
 
 const myAppMessages = {
   LOGIN_SUCCESSFUL: 'User logged-in successfully',
@@ -20,21 +21,21 @@ const myAppMessages = {
 const myEnv = {
   appHost: 'http://localhost:5000',
   appBasePath: '/',
-  appLogoUrl: undefined,
+  appLogoUrl: 'demoapp.png',
   appRegion: 'us-east-N',
   appUserPoolId: 'cognito-idp.us-east-N.amazonaws.com/us-east-N_XYZxyzXYZ',
-  appUserPoolDomain: 'my-user-pool-domain',
+  appUserPoolDomain: 'demoapp-abcdef12',
   appClientId: 'abc123def456ghi789jkl012mn',
   appIdentityPoolId: 'us-east-N:abcd1234-ab12-cd34-de56-abcdef123456'
 };
 
 const appConfig = makeAppConfig({
   ...myEnv,
-  appRefreshTokenStorageKey: 'my-demo-app-wallet-refresh-token',
+  appRefreshTokenStorageKey: 'demoapp-refresh-token',
   appMessages: myAppMessages
 });
 
-const MainContent = () => <div>Main content text.</div>;
+const MainContent = () => <main><p>Main content text.</p></main>;
 
 const appRoutes = [
   {
@@ -48,9 +49,10 @@ const appRoutes = [
 ];
 
 const Demo = () => (
-  <BaseApp appRoutes={appRoutes} appConfig={appConfig} />
+  <DemoBaseApp appRoutes={appRoutes} appConfig={appConfig} />
 );
 
 export default Demo;
 
-render(<Demo/>, document.querySelector('#demo'));
+const root = createRoot(document.querySelector('#demo'));
+root.render(<Demo/>);
