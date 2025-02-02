@@ -38,7 +38,7 @@ const useSetInterval = (callback, seconds) => {
   return cancel;
 };
 
-const REFRESH_TOKEN_INTERVAL = 15000;
+const REFRESH_TOKEN_INTERVAL = 25 * 60000;
 
 const UserProvider = ({ children }) => {
   const { appConfig } = useAppConfig();
