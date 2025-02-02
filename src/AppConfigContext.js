@@ -1,17 +1,17 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext } from "react";
 
 const AppConfigContext = createContext();
 
 const AppConfigProvider = ({ appConfig, children }) => (
-  <AppConfigContext.Provider value={{ appConfig }}>
-    {children}
-  </AppConfigContext.Provider>
+	<AppConfigContext.Provider value={{ appConfig }}>
+		{children}
+	</AppConfigContext.Provider>
 );
 
 const useAppConfig = () => {
-  const { appConfig } = useContext(AppConfigContext);
+	const { appConfig } = useContext(AppConfigContext);
 
-  return { appConfig };
+	return { appConfig };
 };
 
 export default useAppConfig;

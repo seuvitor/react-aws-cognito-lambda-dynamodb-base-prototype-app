@@ -1,47 +1,49 @@
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState
-} from 'react';
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 
 const MessageContext = createContext();
 
 const MessageProvider = ({ children }) => {
-  const [snackPack, setSnackPack] = useState([]);
-  const [message, setMessage] = useState(undefined);
+	const [snackPack, setSnackPack] = useState([]);
+	const [message, setMessage] = useState(undefined);
 
-  useEffect(() => {
-    if (snackPack.length && !message) {
-      setMessage(snackPack[0]);
-      setSnackPack((prev) => prev.slice(1));
-    }
-  }, [snackPack, message]);
+	useEffect(() => {
+		if (snackPack.length && !message) {
+			setMessage(snackPack[0]);
+			setSnackPack((prev) => prev.slice(1));
+		}
+	}, [snackPack, message]);
 
-  const showMessage = useCallback((newMessage) => {
-    setSnackPack((prev) => [...prev, newMessage]);
-  }, []);
+	const showMessage = useCallback((newMessage) => {
+		setSnackPack((prev) => [...prev, newMessage]);
+	}, []);
 
-  const dismissMessage = useCallback(() => {
-    setMessage(undefined);
-  }, []);
+	const dismissMessage = useCallback(() => {
+		setMessage(undefined);
+	}, []);
 
-  return <MessageContext.Provider value={{ message, showMessage, dismissMessage }}>
-      {children}
-    </MessageContext.Provider>;
+	return (
+		<MessageContext.Provider value={{ message, showMessage, dismissMessage }}>
+			{children}
+		</MessageContext.Provider>
+	);
 };
 
 const useMessage = () => {
-  const { showMessage } = useContext(MessageContext);
+	const { showMessage } = useContext(MessageContext);
 
-  return { showMessage };
+	return { showMessage };
 };
 
 const useMessageAreaState = () => {
-  const { message, dismissMessage } = useContext(MessageContext);
+	const { message, dismissMessage } = useContext(MessageContext);
 
-  return { message, dismissMessage };
+	return { message, dismissMessage };
 };
 
 export default useMessage;

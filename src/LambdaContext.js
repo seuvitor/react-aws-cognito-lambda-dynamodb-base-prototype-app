@@ -1,74 +1,90 @@
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState
-} from 'react';
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 
-import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
+import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 
-import useUser from './UserContext';
+import useUser from "./UserContext";
 
 const LambdaContext = createContext();
 
 const LambdaProvider = ({ children }) => {
-  const { user: { accessToken }, awsConfig, awsCredentials } = useUser();
-  const [lambda, setLambda] = useState();
+	const {
+		user: { accessToken },
+		awsConfig,
+		awsCredentials,
+	} = useUser();
+	const [lambda, setLambda] = useState();
 
-  useEffect(() => {
-    if (awsConfig) {
-      setLambda(new LambdaClient(awsConfig));
-    } else {
-      setLambda(undefined);
-    }
-  }, [awsConfig]);
+	useEffect(() => {
+		if (awsConfig) {
+			setLambda(new LambdaClient(awsConfig));
+		} else {
+			setLambda(undefined);
+		}
+	}, [awsConfig]);
 
-  useEffect(() => {
-    if (awsCredentials) {
-      setLambda((oldLambda) => {
-        if (oldLambda) {
-          oldLambda.config.credentials = awsCredentials;
-        }
-        return oldLambda;
-      });
-    }
-  }, [awsCredentials]);
+	useEffect(() => {
+		if (awsCredentials) {
+			setLambda((oldLambda) => {
+				if (oldLambda) {
+					oldLambda.config.credentials = awsCredentials;
+				}
+				return oldLambda;
+			});
+		}
+	}, [awsCredentials]);
 
-  const invokeLambda = useCallback((functionName, payload) => {
-    const params = {
-      FunctionName: functionName,
-      ClientContext: btoa(JSON.stringify({ custom: { accessToken } }))
-    };
-    if (payload) {
-      params.Payload = JSON.stringify(payload);
-    }
-    const command = new InvokeCommand(params);
-    return new Promise((resolve, reject) => {
-      lambda.send(command).then((data) => {
-        if (!data.StatusCode || data.StatusCode !== 200 || !data.Payload) {
-          reject(data);
-        }
-        const responsePayload = JSON.parse(Buffer.from(data.Payload));
-        if (!responsePayload || !responsePayload.statusCode || responsePayload.statusCode !== 200) {
-          reject(data);
-        }
-        resolve(responsePayload.body);
-      }).catch((err) => {
-        reject(err);
-      });
-    });
-  }, [lambda, accessToken]);
+	const invokeLambda = useCallback(
+		(functionName, payload) => {
+			const params = {
+				FunctionName: functionName,
+				ClientContext: btoa(JSON.stringify({ custom: { accessToken } })),
+			};
+			if (payload) {
+				params.Payload = JSON.stringify(payload);
+			}
+			const command = new InvokeCommand(params);
+			return new Promise((resolve, reject) => {
+				lambda
+					.send(command)
+					.then((data) => {
+						if (!data.StatusCode || data.StatusCode !== 200 || !data.Payload) {
+							reject(data);
+						}
+						const responsePayload = JSON.parse(Buffer.from(data.Payload));
+						if (
+							!responsePayload ||
+							!responsePayload.statusCode ||
+							responsePayload.statusCode !== 200
+						) {
+							reject(data);
+						}
+						resolve(responsePayload.body);
+					})
+					.catch((err) => {
+						reject(err);
+					});
+			});
+		},
+		[lambda, accessToken],
+	);
 
-  return <LambdaContext.Provider value={{ invokeLambda: lambda && invokeLambda }}>
-      {children}
-    </LambdaContext.Provider>;
+	return (
+		<LambdaContext.Provider value={{ invokeLambda: lambda && invokeLambda }}>
+			{children}
+		</LambdaContext.Provider>
+	);
 };
 
 const useLambda = () => {
-  const { invokeLambda } = useContext(LambdaContext);
+	const { invokeLambda } = useContext(LambdaContext);
 
-  return { invokeLambda };
+	return { invokeLambda };
 };
 
 export default useLambda;

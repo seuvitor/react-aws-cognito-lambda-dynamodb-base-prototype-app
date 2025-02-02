@@ -1,43 +1,35 @@
 {
-  "name": "react-aws-cognito-lambda-dynamodb-base-prototype-app",
-  "version": "1.0.0",
-  "description": "Base components for prototyping a serverless React app making use of AWS Cognito, Lambda and DynamoDB",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "files": [
-    "dist/cjs",
-    "dist/esm",
-    "src"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/seuvitor/react-aws-cognito-lambda-dynamodb-base-prototype-app.git"
-  },
-  "scripts": {
-    "build": "node custom-esbuild.js",
-    "start": "esbuild demo/src/index.js --loader:.js=jsx --bundle --sourcemap --servedir=demo/public --serve=5000",
-    "lint": "eslint --fix ./src"
-  },
-  "author": "Vitor Dantas",
-  "license": "MIT",
-  "devDependencies": {
-    "esbuild": "^0.15.15",
-    "eslint": "^7.32.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-react": "^7.31.11",
-    "eslint-plugin-react-hooks": "^4.6.0"
-  },
-  "peerDependencies": {
-    "@aws-sdk/client-cognito-identity": "^3.215.0",
-    "@aws-sdk/client-docdb": "^3.215.0",
-    "@aws-sdk/client-dynamodb": "^3.215.0",
-    "@aws-sdk/client-lambda": "^3.215.0",
-    "@aws-sdk/credential-provider-cognito-identity": "^3.215.0",
-    "@aws-sdk/lib-dynamodb": "^3.215.0",
-    "@aws-sdk/util-dynamodb": "^3.215.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.4.3"
-  }
+	"name": "react-aws-cognito-lambda-dynamodb-base-prototype-app",
+	"version": "1.0.0",
+	"description": "Base components for prototyping a serverless React app making use of AWS Cognito, Lambda and DynamoDB",
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.js",
+	"files": ["dist/cjs", "dist/esm", "src"],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/seuvitor/react-aws-cognito-lambda-dynamodb-base-prototype-app.git"
+	},
+	"scripts": {
+		"build": "node custom-esbuild.js",
+		"start": "esbuild demo/src/index.js --loader:.js=jsx --bundle --sourcemap --servedir=demo/public --serve=5000",
+		"lint": "biome check ."
+	},
+	"author": "Vitor Dantas",
+	"license": "MIT",
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"esbuild": "^0.15.15"
+	},
+	"peerDependencies": {
+		"@aws-sdk/client-cognito-identity": "^3.215.0",
+		"@aws-sdk/client-docdb": "^3.215.0",
+		"@aws-sdk/client-dynamodb": "^3.215.0",
+		"@aws-sdk/client-lambda": "^3.215.0",
+		"@aws-sdk/credential-provider-cognito-identity": "^3.215.0",
+		"@aws-sdk/lib-dynamodb": "^3.215.0",
+		"@aws-sdk/util-dynamodb": "^3.215.0",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-router-dom": "^6.4.3"
+	}
 }
