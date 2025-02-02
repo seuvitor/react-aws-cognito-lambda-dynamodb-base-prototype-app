@@ -3,12 +3,18 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useRef,
-  useState
+  useState,
+  useRef
 } from 'react';
 
-import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
-import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
+import {
+  loginWithAwsCognitoIdentityPool as _loginWithAwsCognitoIdentityPool,
+  refreshIdAndAccessTokens as _refreshIdAndAccessTokens,
+  loginWithAuthorizationCode as _loginWithAuthorizationCode,
+  logoff as _logoff,
+  setAppConfig as _setAppConfig,
+  initialUserState
+} from './core/authentication.ts';
 
 import useAppConfig from './AppConfigContext';
 
@@ -32,202 +38,80 @@ const useSetInterval = (callback, seconds) => {
   return cancel;
 };
 
-const UserProvider = ({ children }) => {
-  const {
-    appConfig: {
-      appAuthRedirect,
-      appAuthUrl,
-      appClientId,
-      appIdentityPoolId,
-      appRegion,
-      appUserPoolId,
-      appRefreshTokenStorageKey,
-      appMessages
-    }
-  } = useAppConfig();
+const REFRESH_TOKEN_INTERVAL = 15000;
 
-  const [user, setUser] = useState({
-    identityId: undefined,
-    id: undefined,
-    name: undefined,
-    email: undefined,
-    groups: undefined,
-    idToken: undefined,
-    accessToken: undefined
-  });
-  const [refreshToken, setRefreshToken] = useState(
-    sessionStorage.getItem(appRefreshTokenStorageKey)
-  );
-  const [awsConfig, setAwsConfig] = useState(undefined);
-  const [refreshTokenInterval] = useState(25 * 60000);
-  const [awsCredentials, setAwsCredentials] = useState(undefined);
+const UserProvider = ({ children }) => {
+  const { appConfig } = useAppConfig();
+  const {
+    appMessages
+  } = appConfig;
+
+  const [userState, setUserState] = useState(initialUserState);
 
   useEffect(() => {
-    if (refreshToken) {
-      sessionStorage.setItem(appRefreshTokenStorageKey, refreshToken);
-    } else {
-      sessionStorage.removeItem(appRefreshTokenStorageKey);
-    }
-  }, [refreshToken, appRefreshTokenStorageKey]);
+    _setAppConfig(
+      setUserState,
+      appConfig
+    );
+  }, [appConfig]);
 
   const logoff = useCallback(() => (
-    new Promise((resolve) => {
-      setUser({
-        identityId: undefined,
-        id: undefined,
-        name: undefined,
-        email: undefined,
-        groups: undefined,
-        idToken: undefined,
-        accessToken: undefined
-      });
-      setRefreshToken(undefined);
-      setAwsConfig(undefined);
-      resolve();
-    })
-  ), []);
+    _logoff(
+      setUserState,
+      appConfig
+    )
+  ), [appConfig]);
 
-  useEffect(() => {
-    if (awsCredentials) {
-      setAwsConfig((oldAwsConfig) => {
-        if (oldAwsConfig) {
-          oldAwsConfig.update({ credentials: awsCredentials });
-          return oldAwsConfig;
-        }
-        return {
-          region: appRegion,
-          credentials: awsCredentials
-        };
-      });
-    } else {
-      setAwsConfig(undefined);
-    }
-  }, [awsCredentials, appRegion]);
+  const loginWithAwsCognitoIdentityPool = useCallback((idToken, accessToken) => (
+    _loginWithAwsCognitoIdentityPool(
+      setUserState,
+      appConfig,
+      idToken,
+      accessToken
+    )
+  ), [appConfig]);
 
-  const loginWithAwsCognitoIdentityPool = useCallback((idToken, accessToken) => {
-    const newCredentials = fromCognitoIdentityPool({
-      client: new CognitoIdentityClient({
-        region: appRegion
-      }),
-      identityPoolId: appIdentityPoolId,
-      ...(idToken && { logins: { [appUserPoolId]: idToken } })
-    });
-
-    return new Promise((resolve, reject) => {
-      newCredentials().then((creds) => {
-        setAwsCredentials(newCredentials);
-        setUser((oldUser) => {
-          const idTokenPayload = idToken && JSON.parse(atob(idToken.split('.')[1]));
-          oldUser.identityId = creds.identityId;
-          oldUser.id = idTokenPayload && idTokenPayload.sub;
-          oldUser.name = idTokenPayload ? idTokenPayload.name : appMessages.LOGGED_OUT_USER;
-          oldUser.email = idTokenPayload && idTokenPayload.email;
-          oldUser.groups = idTokenPayload && idTokenPayload['cognito:groups'];
-          oldUser.idToken = idToken;
-          oldUser.accessToken = accessToken;
-          return oldUser;
-        });
-        resolve();
-      }).catch((err) => {
-        setAwsCredentials(undefined);
-        setUser({
-          identityId: undefined,
-          id: undefined,
-          name: undefined,
-          email: undefined,
-          groups: undefined,
-          idToken: undefined,
-          accessToken: undefined
-        });
-        reject(err);
-      });
-    });
-  }, [appIdentityPoolId, appRegion, appUserPoolId, appMessages]);
-
-  const refreshIdAndAccessTokens = useCallback((refreshTokenParam) => (
-    new Promise((resolve, reject) => {
-      if (refreshTokenParam) {
-        fetch(appAuthUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `grant_type=refresh_token&client_id=${appClientId}&refresh_token=${refreshTokenParam}`
-        }).then((response) => {
-          response.json().then((res) => {
-            loginWithAwsCognitoIdentityPool(res.id_token, res.access_token).then(() => {
-              resolve();
-            }).catch((err) => {
-              console.error(appMessages.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS, err);
-              reject(err);
-            });
-          }).catch((err) => {
-            console.error(appMessages.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE, err);
-            reject(err);
-          });
-        }).catch((err) => {
-          console.error(appMessages.LOG_COULD_NOT_GET_REFRESHED_TOKENS, err);
-          reject(err);
-        });
-      } else {
-        console.warn(appMessages.LOG_NO_REFRESH_TOKEN_AVAILABLE);
-        reject(new Error(appMessages.LOG_NO_REFRESH_TOKEN_AVAILABLE));
-      }
-    })
-  ), [loginWithAwsCognitoIdentityPool, appAuthUrl, appClientId, appMessages]);
+  const refreshIdAndAccessTokens = useCallback(() => (
+    _refreshIdAndAccessTokens(
+      setUserState,
+      appConfig,
+      userState.refreshToken
+    )
+  ), [appConfig, userState.refreshToken]);
 
   const scheduledRefreshIdAndAccessTokens = useCallback(() => {
-    refreshIdAndAccessTokens(refreshToken).catch((err) => {
-      console.error(appMessages.LOG_COULD_NOT_REFRESH_TOKENS, err);
+    refreshIdAndAccessTokens().catch(() => {
+      console.warn(appConfig.appMessages.LOG_COULD_NOT_REFRESH_TOKENS);
     });
-  }, [refreshToken, refreshIdAndAccessTokens, appMessages]);
+  }, [refreshIdAndAccessTokens, appConfig]);
 
-  useSetInterval(scheduledRefreshIdAndAccessTokens, refreshTokenInterval);
+  useSetInterval(scheduledRefreshIdAndAccessTokens, REFRESH_TOKEN_INTERVAL);
 
   const loginAnonymously = useCallback(() => (
     loginWithAwsCognitoIdentityPool()
   ), [loginWithAwsCognitoIdentityPool]);
 
   const loginWithAuthorizationCode = useCallback((authorizationCode) => (
-    new Promise((resolve, reject) => {
-      fetch(appAuthUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `grant_type=authorization_code&client_id=${appClientId}&code=${authorizationCode}&redirect_uri=${appAuthRedirect}`
-      }).then((response) => {
-        response.json().then((res) => {
-          refreshIdAndAccessTokens(res.refresh_token).then(() => {
-            setRefreshToken(res.refresh_token);
-            resolve();
-          }).catch((err) => {
-            console.error(appMessages.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS, err);
-            setRefreshToken(undefined);
-            reject(err);
-          });
-        }).catch((err) => {
-          console.error(appMessages.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE, err);
-          setRefreshToken(undefined);
-          reject(err);
-        });
-      }).catch((err) => {
-        console.error(appMessages.LOG_COULD_NOT_GET_IDENTIFICATION_TOKENS, err);
-        setRefreshToken(undefined);
-        reject(err);
-      });
-    })
-  ), [refreshIdAndAccessTokens, appAuthRedirect, appAuthUrl, appClientId, appMessages]);
+    _loginWithAuthorizationCode(
+      setUserState,
+      appConfig,
+      authorizationCode
+    )
+  ), [appConfig]);
 
   useEffect(() => {
-    if (refreshToken && !awsCredentials) {
-      refreshIdAndAccessTokens(refreshToken).catch((err) => {
-        console.error(appMessages.LOG_COULD_NOT_REFRESH_TOKENS, err);
+    if (!userState.awsCredentials) {
+      refreshIdAndAccessTokens().catch(() => {
+        console.warn(appMessages.LOG_COULD_NOT_REFRESH_TOKENS);
       });
     }
-  }, [refreshToken, awsCredentials, refreshIdAndAccessTokens, appMessages]);
+  }, [userState.awsCredentials, refreshIdAndAccessTokens, appMessages]);
 
   return <UserContext.Provider
       value={{
-        user,
-        awsConfig,
-        awsCredentials,
+        user: userState.user,
+        awsConfig: userState.awsConfig,
+        awsCredentials: userState.awsCredentials,
         loginAnonymously,
         loginWithAuthorizationCode,
         logoff

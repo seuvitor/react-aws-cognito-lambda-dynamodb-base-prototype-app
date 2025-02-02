@@ -35,7 +35,7 @@ const DDBProvider = ({ children }) => {
     if (awsCredentials) {
       setDocumentDB((oldDocumentDB) => {
         if (oldDocumentDB) {
-          oldDocumentDB.service.config.update({ credentials: awsCredentials });
+          oldDocumentDB.config.credentials = awsCredentials;
         }
         return oldDocumentDB;
       });

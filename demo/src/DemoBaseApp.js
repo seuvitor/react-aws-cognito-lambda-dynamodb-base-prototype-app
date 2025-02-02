@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 
-import {
-  BaseAppScope,
-  useBaseAppScopeState
-} from '../../src';
+import { BaseAppScope } from '../../src';
 import AppBar from './AppBar';
 import AppDrawer from './AppDrawer';
 import MessageArea from './MessageArea';
 import SpinnerArea from './SpinnerArea';
 
-const DemoBaseApp = ({ appConfig, appRoutes }) => {
-  const { routes } = useBaseAppScopeState(appRoutes);
+const DemoBaseApp = ({ appConfig, routes }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return <BaseAppScope appConfig={appConfig} routes={routes}>

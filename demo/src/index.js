@@ -37,7 +37,7 @@ const appConfig = makeAppConfig({
 
 const MainContent = () => <main><p>Main content text.</p></main>;
 
-const appRoutes = [
+const routes = [
   {
     name: 'main',
     label: 'Main',
@@ -49,7 +49,7 @@ const appRoutes = [
 ];
 
 const Demo = () => (
-  <DemoBaseApp appRoutes={appRoutes} appConfig={appConfig} />
+  <DemoBaseApp routes={routes} appConfig={appConfig} />
 );
 
 export default Demo;

@@ -28,7 +28,7 @@ const LambdaProvider = ({ children }) => {
     if (awsCredentials) {
       setLambda((oldLambda) => {
         if (oldLambda) {
-          oldLambda.config.update({ credentials: awsCredentials });
+          oldLambda.config.credentials = awsCredentials;
         }
         return oldLambda;
       });
