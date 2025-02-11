@@ -25,11 +25,11 @@ const myEnv = {
 	appHost: "http://localhost:5000",
 	appBasePath: "/",
 	appLogoUrl: "demoapp.png",
-	appRegion: "us-east-N",
-	appUserPoolId: "cognito-idp.us-east-N.amazonaws.com/us-east-N_XYZxyzXYZ",
-	appUserPoolDomain: "demoapp-abcdef12",
-	appClientId: "abc123def456ghi789jkl012mn",
-	appIdentityPoolId: "us-east-N:abcd1234-ab12-cd34-de56-abcdef123456",
+	appRegion: "us-east-1",
+	appUserPoolId: "cognito-idp.us-east-1.amazonaws.com/us-east-1_SjfN8ExVX",
+	appUserPoolDomain: "carteira-investimentos",
+	appClientId: "2kl7a7vgnbck6caudr0imifn5o",
+	appIdentityPoolId: "us-east-1:874c45d2-0eb6-4d04-92f0-b8769dcbcc54",
 };
 
 const appConfig = makeAppConfig({
@@ -59,5 +59,8 @@ const Demo = () => <DemoBaseApp routes={routes} appConfig={appConfig} />;
 
 export default Demo;
 
-const root = createRoot(document.querySelector("#demo"));
-root.render(<Demo />);
+const rootNode = document.querySelector("#demo");
+if (rootNode) {
+	const root = createRoot(rootNode);
+	root.render(<Demo />);
+}

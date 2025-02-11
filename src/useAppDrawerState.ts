@@ -1,7 +1,8 @@
 import useAppConfig from "./AppConfigContext";
+import type { AppRoute } from "./BaseAppScope";
 import useUser from "./UserContext";
 
-const useAppDrawerState = (routes) => {
+const useAppDrawerState = (routes: AppRoute[]) => {
 	const {
 		appConfig: { appLogoUrl },
 	} = useAppConfig();
@@ -9,7 +10,7 @@ const useAppDrawerState = (routes) => {
 		user: { groups: userGroups },
 	} = useUser();
 
-	const userFromAuthorizedGroup = (authorizedGroups) => {
+	const userFromAuthorizedGroup = (authorizedGroups: string[] | undefined) => {
 		if (!authorizedGroups) {
 			return true;
 		}

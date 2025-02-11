@@ -1,12 +1,13 @@
 import { useLocation } from "react-router-dom";
 
 import useAppConfig from "./AppConfigContext";
+import type { AppRoute } from "./BaseAppScope";
 import useMessage from "./MessageContext";
 import useUser from "./UserContext";
 
-const useAppBarState = (routes) => {
+const useAppBarState = (routes: AppRoute[]) => {
 	const {
-		appConfig: { appExternalLoginUrl, appMessages, hideLogin },
+		appConfig: { appMessages, hideLogin, appExternalLoginUrl },
 	} = useAppConfig();
 	const { showMessage } = useMessage();
 	const {
@@ -18,12 +19,8 @@ const useAppBarState = (routes) => {
 
 	const logoffAndShowMessage = () => {
 		logoff()
-			.then(() => {
-				showMessage(appMessages.LOGOUT_SUCCESSFUL);
-			})
-			.catch(() => {
-				showMessage(appMessages.LOGOUT_FAILED);
-			});
+			.then(() => showMessage(appMessages.LOGOUT_SUCCESSFUL))
+			.catch(() => showMessage(appMessages.LOGOUT_FAILED));
 	};
 
 	const currentRoute = routes.find((route) => route.path === location.pathname);

@@ -11,13 +11,17 @@
 	},
 	"scripts": {
 		"build": "node custom-esbuild.js",
-		"start": "esbuild demo/src/index.js --loader:.js=jsx --bundle --sourcemap --servedir=demo/public --serve=5000",
-		"lint": "biome check ."
+		"start": "esbuild demo/src/index.tsx --loader:.ts=tsx --bundle --sourcemap --servedir=demo/public --serve=5000",
+		"lint": "biome check .",
+		"lint-fix": "biome check --write ."
 	},
 	"author": "Vitor Dantas",
 	"license": "MIT",
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@types/node": "^22.13.0",
+		"@types/react": "^18.2.0",
+		"@types/react-dom": "^18.2.0",
 		"esbuild": "^0.15.15"
 	},
 	"peerDependencies": {

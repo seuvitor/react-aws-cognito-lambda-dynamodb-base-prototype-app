@@ -9,6 +9,7 @@ const useAuthRedirect = () => {
 	const {
 		appConfig: { appBasePath, appMessages },
 	} = useAppConfig();
+
 	const { showMessage } = useMessage();
 	const { showSpinner, dismissSpinner } = useSpinner();
 	const { loginWithAuthorizationCode } = useUser();

@@ -1,7 +1,9 @@
 import React from "react";
+import type { PropsWithChildren } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 
 import InfrastructureProvider from "./InfrastructureProvider";
+import type { AppConfig } from "./core/makeAppConfig";
 import useAuthRedirect from "./useAuthRedirect";
 
 const RedirectAuthCode = () => {
@@ -9,7 +11,22 @@ const RedirectAuthCode = () => {
 	return null;
 };
 
-const BaseAppScope = ({ appConfig, routes, children }) => (
+type AppRoute = {
+	name: string;
+	label: string;
+	path: string;
+	hideFromMenu: boolean;
+	component: () => JSX.Element;
+	options: { exact?: boolean };
+	authorizedGroups?: string[];
+};
+
+type BaseAppScopeProps = PropsWithChildren<{
+	appConfig: AppConfig;
+	routes: AppRoute[];
+}>;
+
+const BaseAppScope = ({ appConfig, routes, children }: BaseAppScopeProps) => (
 	<InfrastructureProvider appConfig={appConfig}>
 		<RedirectAuthCode />
 		<HashRouter>
@@ -30,3 +47,5 @@ const BaseAppScope = ({ appConfig, routes, children }) => (
 );
 
 export default BaseAppScope;
+
+export type { AppRoute };

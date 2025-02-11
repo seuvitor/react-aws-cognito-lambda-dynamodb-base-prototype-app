@@ -1,6 +1,16 @@
 import React, { createContext, useCallback, useContext, useState } from "react";
 
-const SpinnerContext = createContext();
+type SpinnerContextValue = {
+	showSpinner: () => void;
+	dismissSpinner: () => void;
+	showing: boolean;
+};
+
+const SpinnerContext = createContext<SpinnerContextValue>({
+	showSpinner: () => {},
+	dismissSpinner: () => {},
+	showing: false,
+});
 
 const SpinnerProvider = ({ children }) => {
 	const [spinnerCount, setSpinnerCount] = useState(0);

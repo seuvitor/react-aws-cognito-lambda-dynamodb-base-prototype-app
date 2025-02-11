@@ -3,6 +3,7 @@ import {
 	type CognitoIdentityCredentialProvider,
 	fromCognitoIdentityPool,
 } from "@aws-sdk/credential-provider-cognito-identity";
+import type { AppConfig, AppMessages } from "./makeAppConfig";
 
 const initialUserState = {
 	appConfig: undefined,
@@ -34,25 +35,6 @@ const updateRefreshTokenInSessionStorage = (
 	}
 };
 
-type AppMessages = {
-	LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS: string;
-	LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE: string;
-	LOG_COULD_NOT_GET_REFRESHED_TOKENS: string;
-	LOG_NO_REFRESH_TOKEN_AVAILABLE: string;
-	LOG_COULD_NOT_GET_IDENTIFICATION_TOKENS: string;
-};
-
-type AppConfig = {
-	appAuthUrl: string;
-	appClientId: string;
-	appAuthRedirect: string;
-	appIdentityPoolId: string;
-	appRegion: string;
-	appUserPoolId: string;
-	appMessages: AppMessages;
-	appRefreshTokenStorageKey: string;
-};
-
 type AwsCredentialsState = {
 	awsCredentials: undefined | CognitoIdentityCredentialProvider;
 	user: {
@@ -72,7 +54,7 @@ type AwsCredentialsState = {
 		  };
 };
 
-type LoginState = AwsCredentialsState & {
+export type LoginState = AwsCredentialsState & {
 	refreshToken: undefined | string;
 };
 
@@ -98,10 +80,10 @@ const stateUpdateFromFailedLogin: LoginState = {
 const stateUpdateFromNewAwsCredentials = (
 	awsCredentials: CognitoIdentityCredentialProvider,
 	identityId: string,
-	idToken: string,
-	accessToken: string,
-	appMessages,
-	appRegion,
+	idToken: string | undefined,
+	accessToken: string | undefined,
+	appMessages: AppMessages,
+	appRegion: string,
 ): AwsCredentialsState => {
 	const idTokenPayload = idToken && JSON.parse(atob(idToken.split(".")[1]));
 	const user = {
@@ -126,8 +108,8 @@ const stateUpdateFromNewAwsCredentials = (
 
 const loginWithAwsCognitoIdentityPoolSemDispatch = (
 	appConfig: AppConfig,
-	idToken: string,
-	accessToken: string,
+	idToken?: string,
+	accessToken?: string,
 ): Promise<AwsCredentialsState> => {
 	const { appIdentityPoolId, appRegion, appUserPoolId, appMessages } =
 		appConfig;
@@ -162,7 +144,7 @@ const loginWithAwsCognitoIdentityPoolSemDispatch = (
 
 const refreshIdAndAccessTokensSemDispatch = (
 	appConfig: AppConfig,
-	refreshToken: string,
+	refreshToken?: string,
 ): Promise<AwsCredentialsState> => {
 	const { appAuthUrl, appClientId, appMessages } = appConfig;
 	return new Promise((resolve, reject) => {
@@ -256,17 +238,23 @@ const loginWithAuthorizationCodeSemDispatch = (
 	});
 };
 
-const logoff = (setUserState, appConfig): Promise<void> =>
+const logoff = (
+	setUserState: (action: (prevState: LoginState) => LoginState) => void,
+	appConfig: AppConfig,
+): Promise<void> =>
 	new Promise((resolve, _reject) => {
 		updateRefreshTokenInSessionStorage(
 			undefined,
 			appConfig.appRefreshTokenStorageKey,
 		);
-		setUserState(stateUpdateFromFailedLogin);
+		setUserState((_prevState) => stateUpdateFromFailedLogin);
 		resolve();
 	});
 
-const setAppConfig = (setUserState, appConfig) => {
+const setAppConfig = (
+	setUserState: (action: (prevState: LoginState) => LoginState) => void,
+	appConfig: AppConfig,
+) => {
 	const refreshToken = getRefreshTokenFromSessionStorage(
 		appConfig.appRefreshTokenStorageKey,
 	);
@@ -276,39 +264,39 @@ const setAppConfig = (setUserState, appConfig) => {
 };
 
 const loginWithAwsCognitoIdentityPool = (
-	setUserState,
-	appConfig,
-	idToken: string,
-	accessToken: string,
+	setUserState: (action: (prevState: LoginState) => LoginState) => void,
+	appConfig: AppConfig,
+	idToken?: string,
+	accessToken?: string,
 ): void => {
 	loginWithAwsCognitoIdentityPoolSemDispatch(appConfig, idToken, accessToken)
 		.then((stateUpdate) => {
 			setUserState((oldState: LoginState) => ({ ...oldState, stateUpdate }));
 		})
 		.catch(() => {
-			setUserState(stateUpdateFromFailedLogin);
+			setUserState((_prevState) => stateUpdateFromFailedLogin);
 		});
 };
 
 const refreshIdAndAccessTokens = (
-	setUserState,
+	setUserState: (action: (prevState: LoginState) => LoginState) => void,
 	appConfig: AppConfig,
-	refreshToken: string,
+	refreshToken?: string,
 ): Promise<void> =>
 	new Promise((resolve, reject) => {
 		refreshIdAndAccessTokensSemDispatch(appConfig, refreshToken)
 			.then((stateUpdate) => {
-				setUserState((oldState: LoginState) => ({ ...oldState, stateUpdate }));
+				setUserState((prevState) => ({ ...prevState, ...stateUpdate }));
 				resolve();
 			})
 			.catch((err) => {
-				setUserState(stateUpdateFromFailedLogin);
+				setUserState((_prevState) => stateUpdateFromFailedLogin);
 				reject(err);
 			});
 	});
 
 const loginWithAuthorizationCode = (
-	setUserState,
+	setUserState: (action: (prevState: LoginState) => LoginState) => void,
 	appConfig: AppConfig,
 	authorizationCode: string,
 ): Promise<void> =>
@@ -320,7 +308,7 @@ const loginWithAuthorizationCode = (
 					refreshToken,
 					appConfig.appRefreshTokenStorageKey,
 				);
-				setUserState(stateUpdate);
+				setUserState((_prevState) => stateUpdate);
 				resolve();
 			})
 			.catch((err) => {
@@ -329,7 +317,7 @@ const loginWithAuthorizationCode = (
 					refreshToken,
 					appConfig.appRefreshTokenStorageKey,
 				);
-				setUserState(stateUpdateFromFailedLogin);
+				setUserState((_prevState) => stateUpdateFromFailedLogin);
 				reject(err);
 			});
 	});

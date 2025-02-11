@@ -13,19 +13,33 @@ import {
 	PutCommand,
 	UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
+import type {
+	GetCommandInput,
+	GetCommandOutput,
+	PutCommandInput,
+	PutCommandOutput,
+	UpdateCommandInput,
+	UpdateCommandOutput,
+} from "@aws-sdk/lib-dynamodb";
 
 import useUser from "./UserContext";
 
-const DDBContext = createContext();
+type DDBContextValue = {
+	documentDB?: DynamoDBDocumentClient;
+};
+
+const DDBContext = createContext<DDBContextValue>({
+	documentDB: undefined,
+});
 
 const DDBProvider = ({ children }) => {
 	const { awsConfig, awsCredentials } = useUser();
-	const [documentDB, setDocumentDB] = useState();
+	const [documentDB, setDocumentDB] = useState<DynamoDBDocumentClient>();
 
 	useEffect(() => {
 		if (awsConfig) {
 			const ddbClient = new DynamoDBClient(awsConfig);
-			setDocumentDB(new DynamoDBDocumentClient(ddbClient));
+			setDocumentDB(DynamoDBDocumentClient.from(ddbClient));
 		} else {
 			setDocumentDB(undefined);
 		}
@@ -51,25 +65,34 @@ const useDDB = () => {
 	const { documentDB } = useContext(DDBContext);
 
 	const ddbGet = useCallback(
-		(params) => documentDB.send(new GetCommand(params)),
+		(params: GetCommandInput) =>
+			documentDB
+				? documentDB.send(new GetCommand(params))
+				: Promise.reject<GetCommandOutput>(),
 		[documentDB],
 	);
 
 	const ddbPut = useCallback(
-		(params) => documentDB.send(new PutCommand(params)),
+		(params: PutCommandInput) =>
+			documentDB
+				? documentDB.send(new PutCommand(params))
+				: Promise.reject<PutCommandOutput>(),
 		[documentDB],
 	);
 
 	const ddbUpdate = useCallback(
-		(params) => documentDB.send(new UpdateCommand(params)),
+		(params: UpdateCommandInput) =>
+			documentDB
+				? documentDB.send(new UpdateCommand(params))
+				: Promise.reject<UpdateCommandOutput>(),
 		[documentDB],
 	);
 
 	return {
 		documentDB,
-		ddbGet: documentDB && ddbGet,
-		ddbPut: documentDB && ddbPut,
-		ddbUpdate: documentDB && ddbUpdate,
+		ddbGet,
+		ddbPut,
+		ddbUpdate,
 	};
 };
 

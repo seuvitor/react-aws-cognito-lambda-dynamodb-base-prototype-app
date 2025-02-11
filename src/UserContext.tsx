@@ -14,14 +14,48 @@ import {
 	refreshIdAndAccessTokens as _refreshIdAndAccessTokens,
 	setAppConfig as _setAppConfig,
 	initialUserState,
-} from "./core/authentication.ts";
+} from "./core/authentication";
+import type { LoginState } from "./core/authentication";
 
+import type { CognitoIdentityCredentialProvider } from "@aws-sdk/credential-provider-cognito-identity";
 import useAppConfig from "./AppConfigContext";
 
-const UserContext = createContext();
+type UserContextValue = {
+	awsCredentials: undefined | CognitoIdentityCredentialProvider;
+	user: {
+		identityId: undefined | string;
+		id: undefined | string;
+		name: undefined | string;
+		email: undefined | string;
+		groups: undefined | string[];
+		idToken: undefined | string;
+		accessToken: undefined | string;
+	};
+	awsConfig:
+		| undefined
+		| {
+				region: undefined | string;
+				credentials: undefined | CognitoIdentityCredentialProvider;
+		  };
 
-const useSetInterval = (callback, seconds) => {
-	const intervalRef = useRef();
+	loginAnonymously: () => void;
+	loginWithAuthorizationCode: (authorizationCode: string) => Promise<void>;
+	logoff: () => Promise<void>;
+};
+
+const initialUserContextValue = {
+	user: initialUserState.user,
+	awsConfig: initialUserState.awsConfig,
+	awsCredentials: initialUserState.awsCredentials,
+	loginAnonymously: () => {},
+	loginWithAuthorizationCode: () => Promise.reject(),
+	logoff: () => Promise.reject(),
+};
+
+const UserContext = createContext<UserContextValue>(initialUserContextValue);
+
+const useSetInterval = (callback: () => void, seconds: number) => {
+	const intervalRef = useRef<NodeJS.Timeout>();
 	const cancel = useCallback(() => {
 		const interval = intervalRef.current;
 		if (interval) {
@@ -44,7 +78,7 @@ const UserProvider = ({ children }) => {
 	const { appConfig } = useAppConfig();
 	const { appMessages } = appConfig;
 
-	const [userState, setUserState] = useState(initialUserState);
+	const [userState, setUserState] = useState<LoginState>(initialUserState);
 
 	useEffect(() => {
 		_setAppConfig(setUserState, appConfig);
@@ -56,7 +90,7 @@ const UserProvider = ({ children }) => {
 	);
 
 	const loginWithAwsCognitoIdentityPool = useCallback(
-		(idToken, accessToken) =>
+		(idToken: string | undefined, accessToken: string | undefined) =>
 			_loginWithAwsCognitoIdentityPool(
 				setUserState,
 				appConfig,
@@ -78,19 +112,19 @@ const UserProvider = ({ children }) => {
 
 	const scheduledRefreshIdAndAccessTokens = useCallback(() => {
 		refreshIdAndAccessTokens().catch(() => {
-			console.warn(appConfig.appMessages.LOG_COULD_NOT_REFRESH_TOKENS);
+			console.warn(appMessages.LOG_COULD_NOT_REFRESH_TOKENS);
 		});
-	}, [refreshIdAndAccessTokens, appConfig]);
+	}, [refreshIdAndAccessTokens, appMessages]);
 
 	useSetInterval(scheduledRefreshIdAndAccessTokens, REFRESH_TOKEN_INTERVAL);
 
 	const loginAnonymously = useCallback(
-		() => loginWithAwsCognitoIdentityPool(),
+		() => loginWithAwsCognitoIdentityPool(undefined, undefined),
 		[loginWithAwsCognitoIdentityPool],
 	);
 
 	const loginWithAuthorizationCode = useCallback(
-		(authorizationCode) =>
+		(authorizationCode: string) =>
 			_loginWithAuthorizationCode(setUserState, appConfig, authorizationCode),
 		[appConfig],
 	);

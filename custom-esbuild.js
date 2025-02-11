@@ -2,8 +2,8 @@ const esbuild = require("esbuild");
 const pkg = require("./package.json");
 
 esbuild.build({
-	entryPoints: ["./src/index.js"],
-	loader: { ".js": "jsx" },
+	entryPoints: ["./src/index.ts"],
+	loader: { ".ts": "tsx" },
 	outfile: "dist/cjs/index.js",
 	bundle: true,
 	format: "cjs",
@@ -16,8 +16,8 @@ esbuild.build({
 });
 
 esbuild.build({
-	entryPoints: ["./src/index.js"],
-	loader: { ".js": "jsx" },
+	entryPoints: ["./src/index.ts"],
+	loader: { ".ts": "tsx" },
 	outfile: "dist/esm/index.js",
 	bundle: true,
 	format: "esm",

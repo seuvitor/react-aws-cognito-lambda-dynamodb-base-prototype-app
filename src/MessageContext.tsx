@@ -6,11 +6,21 @@ import React, {
 	useState,
 } from "react";
 
-const MessageContext = createContext();
+type MessageContextValue = {
+	message: string | undefined;
+	showMessage: (message: string) => void;
+	dismissMessage: () => void;
+};
+
+const MessageContext = createContext<MessageContextValue>({
+	message: "",
+	showMessage: (_message: string) => {},
+	dismissMessage: () => {},
+});
 
 const MessageProvider = ({ children }) => {
-	const [snackPack, setSnackPack] = useState([]);
-	const [message, setMessage] = useState(undefined);
+	const [snackPack, setSnackPack] = useState<string[]>([]);
+	const [message, setMessage] = useState<string>();
 
 	useEffect(() => {
 		if (snackPack.length && !message) {
@@ -19,7 +29,7 @@ const MessageProvider = ({ children }) => {
 		}
 	}, [snackPack, message]);
 
-	const showMessage = useCallback((newMessage) => {
+	const showMessage = useCallback((newMessage: string) => {
 		setSnackPack((prev) => [...prev, newMessage]);
 	}, []);
 

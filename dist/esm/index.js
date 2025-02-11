@@ -1,281 +1,29 @@
-// src/UserContext.js
-import React2, {
-  createContext as createContext2,
-  useCallback,
-  useContext as useContext2,
-  useEffect,
-  useRef,
-  useState
-} from "react";
-import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
-import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
-
-// src/AppConfigContext.js
+// src/AppConfigContext.tsx
 import React, { createContext, useContext } from "react";
-var AppConfigContext = createContext();
-var makeAppConfig = ({
-  appHost,
-  appBasePath,
-  appRegion,
-  appUserPoolId,
-  appUserPoolDomain,
-  appClientId,
-  appIdentityPoolId,
-  appRefreshTokenStorageKey,
-  appLogoUrl,
-  appMessages,
-  hideLogin
-}) => {
-  const appBaseAuthUrl = `https://${appUserPoolDomain}.auth.${appRegion}.amazoncognito.com`;
-  const appAuthRedirect = `${appHost}${appBasePath}?auth-redirect`;
-  const appAuthUrl = `${appBaseAuthUrl}/oauth2/token`;
-  const appExternalLoginUrl = `${appBaseAuthUrl}/login?client_id=${appClientId}&response_type=code&scope=email+openid+profile&redirect_uri=${appAuthRedirect}`;
-  return {
-    appHost,
-    appBasePath,
-    appRegion,
-    appUserPoolId,
-    appUserPoolDomain,
-    appClientId,
-    appIdentityPoolId,
-    appBaseAuthUrl,
-    appAuthRedirect,
-    appAuthUrl,
-    appExternalLoginUrl,
-    appRefreshTokenStorageKey,
-    appLogoUrl,
-    appMessages,
-    hideLogin: hideLogin || false
-  };
-};
+var AppConfigContext = createContext(void 0);
 var AppConfigProvider = ({ appConfig, children }) => /* @__PURE__ */ React.createElement(AppConfigContext.Provider, {
   value: { appConfig }
 }, children);
 var useAppConfig = () => {
-  const { appConfig } = useContext(AppConfigContext);
+  const ctx = useContext(AppConfigContext);
+  if (ctx === void 0) {
+    throw new Error(
+      "useAppConfig can only be used in the scope of a AppConfigProvider"
+    );
+  }
+  const { appConfig } = ctx;
   return { appConfig };
 };
 var AppConfigContext_default = useAppConfig;
 
-// src/UserContext.js
-var UserContext = createContext2();
-var useSetInterval = (callback, seconds) => {
-  const intervalRef = useRef();
-  const cancel = useCallback(() => {
-    const interval = intervalRef.current;
-    if (interval) {
-      intervalRef.current = void 0;
-      clearInterval(interval);
-    }
-  }, [intervalRef]);
-  useEffect(() => {
-    intervalRef.current = setInterval(callback, seconds);
-    return cancel;
-  }, [callback, seconds, cancel]);
-  return cancel;
-};
-var UserProvider = ({ children }) => {
-  const {
-    appConfig: {
-      appAuthRedirect,
-      appAuthUrl,
-      appClientId,
-      appIdentityPoolId,
-      appRegion,
-      appUserPoolId,
-      appRefreshTokenStorageKey,
-      appMessages
-    }
-  } = AppConfigContext_default();
-  const [user, setUser] = useState({
-    identityId: void 0,
-    id: void 0,
-    name: void 0,
-    email: void 0,
-    groups: void 0,
-    idToken: void 0,
-    accessToken: void 0
-  });
-  const [refreshToken, setRefreshToken] = useState(
-    sessionStorage.getItem(appRefreshTokenStorageKey)
-  );
-  const [awsConfig, setAwsConfig] = useState(void 0);
-  const [refreshTokenInterval] = useState(25 * 6e4);
-  const [awsCredentials, setAwsCredentials] = useState(void 0);
-  useEffect(() => {
-    if (refreshToken) {
-      sessionStorage.setItem(appRefreshTokenStorageKey, refreshToken);
-    } else {
-      sessionStorage.removeItem(appRefreshTokenStorageKey);
-    }
-  }, [refreshToken, appRefreshTokenStorageKey]);
-  const logoff = useCallback(() => new Promise((resolve) => {
-    setUser({
-      identityId: void 0,
-      id: void 0,
-      name: void 0,
-      email: void 0,
-      groups: void 0,
-      idToken: void 0,
-      accessToken: void 0
-    });
-    setRefreshToken(void 0);
-    setAwsConfig(void 0);
-    resolve();
-  }), []);
-  useEffect(() => {
-    if (awsCredentials) {
-      setAwsConfig((oldAwsConfig) => {
-        if (oldAwsConfig) {
-          oldAwsConfig.update({ credentials: awsCredentials });
-          return oldAwsConfig;
-        }
-        return {
-          region: appRegion,
-          credentials: awsCredentials
-        };
-      });
-    } else {
-      setAwsConfig(void 0);
-    }
-  }, [awsCredentials, appRegion]);
-  const loginWithAwsCognitoIdentityPool = useCallback((idToken, accessToken) => {
-    const newCredentials = fromCognitoIdentityPool({
-      client: new CognitoIdentityClient({
-        region: appRegion
-      }),
-      identityPoolId: appIdentityPoolId,
-      ...idToken && { logins: { [appUserPoolId]: idToken } }
-    });
-    return new Promise((resolve, reject) => {
-      newCredentials().then((creds) => {
-        setAwsCredentials(newCredentials);
-        setUser((oldUser) => {
-          const idTokenPayload = idToken && JSON.parse(atob(idToken.split(".")[1]));
-          oldUser.identityId = creds.identityId;
-          oldUser.id = idTokenPayload && idTokenPayload.sub;
-          oldUser.name = idTokenPayload ? idTokenPayload.name : appMessages.LOGGED_OUT_USER;
-          oldUser.email = idTokenPayload && idTokenPayload.email;
-          oldUser.groups = idTokenPayload && idTokenPayload["cognito:groups"];
-          oldUser.idToken = idToken;
-          oldUser.accessToken = accessToken;
-          return oldUser;
-        });
-        resolve();
-      }).catch((err) => {
-        setAwsCredentials(void 0);
-        setUser({
-          identityId: void 0,
-          id: void 0,
-          name: void 0,
-          email: void 0,
-          groups: void 0,
-          idToken: void 0,
-          accessToken: void 0
-        });
-        reject(err);
-      });
-    });
-  }, [appIdentityPoolId, appRegion, appUserPoolId, appMessages]);
-  const refreshIdAndAccessTokens = useCallback((refreshTokenParam) => new Promise((resolve, reject) => {
-    if (refreshTokenParam) {
-      fetch(appAuthUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `grant_type=refresh_token&client_id=${appClientId}&refresh_token=${refreshTokenParam}`
-      }).then((response) => {
-        response.json().then((res) => {
-          loginWithAwsCognitoIdentityPool(res.id_token, res.access_token).then(() => {
-            resolve();
-          }).catch((err) => {
-            console.error(appMessages.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS, err);
-            reject(err);
-          });
-        }).catch((err) => {
-          console.error(appMessages.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE, err);
-          reject(err);
-        });
-      }).catch((err) => {
-        console.error(appMessages.LOG_COULD_NOT_GET_REFRESHED_TOKENS, err);
-        reject(err);
-      });
-    } else {
-      console.warn(appMessages.LOG_NO_REFRESH_TOKEN_AVAILABLE);
-      reject(new Error(appMessages.LOG_NO_REFRESH_TOKEN_AVAILABLE));
-    }
-  }), [loginWithAwsCognitoIdentityPool, appAuthUrl, appClientId, appMessages]);
-  const scheduledRefreshIdAndAccessTokens = useCallback(() => {
-    refreshIdAndAccessTokens(refreshToken).catch((err) => {
-      console.error(appMessages.LOG_COULD_NOT_REFRESH_TOKENS, err);
-    });
-  }, [refreshToken, refreshIdAndAccessTokens, appMessages]);
-  useSetInterval(scheduledRefreshIdAndAccessTokens, refreshTokenInterval);
-  const loginAnonymously = useCallback(() => loginWithAwsCognitoIdentityPool(), [loginWithAwsCognitoIdentityPool]);
-  const loginWithAuthorizationCode = useCallback((authorizationCode) => new Promise((resolve, reject) => {
-    fetch(appAuthUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `grant_type=authorization_code&client_id=${appClientId}&code=${authorizationCode}&redirect_uri=${appAuthRedirect}`
-    }).then((response) => {
-      response.json().then((res) => {
-        refreshIdAndAccessTokens(res.refresh_token).then(() => {
-          setRefreshToken(res.refresh_token);
-          resolve();
-        }).catch((err) => {
-          console.error(appMessages.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS, err);
-          setRefreshToken(void 0);
-          reject(err);
-        });
-      }).catch((err) => {
-        console.error(appMessages.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE, err);
-        setRefreshToken(void 0);
-        reject(err);
-      });
-    }).catch((err) => {
-      console.error(appMessages.LOG_COULD_NOT_GET_IDENTIFICATION_TOKENS, err);
-      setRefreshToken(void 0);
-      reject(err);
-    });
-  }), [refreshIdAndAccessTokens, appAuthRedirect, appAuthUrl, appClientId, appMessages]);
-  useEffect(() => {
-    if (refreshToken && !awsCredentials) {
-      refreshIdAndAccessTokens(refreshToken).catch((err) => {
-        console.error(appMessages.LOG_COULD_NOT_REFRESH_TOKENS, err);
-      });
-    }
-  }, [refreshToken, awsCredentials, refreshIdAndAccessTokens, appMessages]);
-  return /* @__PURE__ */ React2.createElement(UserContext.Provider, {
-    value: {
-      user,
-      awsConfig,
-      awsCredentials,
-      loginAnonymously,
-      loginWithAuthorizationCode,
-      logoff
-    }
-  }, children);
-};
-var useUser = () => {
-  const {
-    user,
-    awsConfig,
-    awsCredentials,
-    loginAnonymously,
-    loginWithAuthorizationCode,
-    logoff
-  } = useContext2(UserContext);
-  return {
-    user,
-    awsConfig,
-    awsCredentials,
-    loginAnonymously,
-    loginWithAuthorizationCode,
-    logoff
-  };
-};
-var UserContext_default = useUser;
+// src/BaseAppScope.tsx
+import React8 from "react";
+import { HashRouter, Route, Routes } from "react-router-dom";
 
-// src/DDBContext.js
+// src/InfrastructureProvider.tsx
+import React7 from "react";
+
+// src/DDBContext.tsx
 import React3, {
   createContext as createContext3,
   useCallback as useCallback2,
@@ -290,14 +38,350 @@ import {
   PutCommand,
   UpdateCommand
 } from "@aws-sdk/lib-dynamodb";
-var DDBContext = createContext3();
+
+// src/UserContext.tsx
+import React2, {
+  createContext as createContext2,
+  useCallback,
+  useContext as useContext2,
+  useEffect,
+  useState,
+  useRef
+} from "react";
+
+// src/core/authentication.ts
+import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
+import {
+  fromCognitoIdentityPool
+} from "@aws-sdk/credential-provider-cognito-identity";
+var initialUserState = {
+  appConfig: void 0,
+  user: {
+    identityId: void 0,
+    id: void 0,
+    name: void 0,
+    email: void 0,
+    groups: void 0,
+    idToken: void 0,
+    accessToken: void 0
+  },
+  refreshToken: void 0,
+  awsConfig: void 0,
+  awsCredentials: void 0
+};
+var getRefreshTokenFromSessionStorage = (appRefreshTokenStorageKey) => sessionStorage.getItem(appRefreshTokenStorageKey);
+var updateRefreshTokenInSessionStorage = (refreshToken, appRefreshTokenStorageKey) => {
+  if (refreshToken) {
+    sessionStorage.setItem(appRefreshTokenStorageKey, refreshToken);
+  } else {
+    sessionStorage.removeItem(appRefreshTokenStorageKey);
+  }
+};
+var stateUpdateFromClearAwsCredentials = {
+  awsCredentials: void 0,
+  user: {
+    identityId: void 0,
+    id: void 0,
+    name: void 0,
+    email: void 0,
+    groups: void 0,
+    idToken: void 0,
+    accessToken: void 0
+  },
+  awsConfig: void 0
+};
+var stateUpdateFromFailedLogin = {
+  ...stateUpdateFromClearAwsCredentials,
+  refreshToken: void 0
+};
+var stateUpdateFromNewAwsCredentials = (awsCredentials, identityId, idToken, accessToken, appMessages, appRegion) => {
+  const idTokenPayload = idToken && JSON.parse(atob(idToken.split(".")[1]));
+  const user = {
+    identityId,
+    id: idTokenPayload?.sub,
+    name: idTokenPayload ? idTokenPayload.name : appMessages.LOGGED_OUT_USER,
+    email: idTokenPayload?.email,
+    groups: idTokenPayload?.["cognito:groups"],
+    idToken,
+    accessToken
+  };
+  const awsConfig = awsCredentials ? { region: appRegion, credentials: awsCredentials } : void 0;
+  return {
+    awsCredentials,
+    user,
+    awsConfig
+  };
+};
+var loginWithAwsCognitoIdentityPoolSemDispatch = (appConfig, idToken, accessToken) => {
+  const { appIdentityPoolId, appRegion, appUserPoolId, appMessages } = appConfig;
+  const newCredentials = fromCognitoIdentityPool({
+    client: new CognitoIdentityClient({
+      region: appRegion
+    }),
+    identityPoolId: appIdentityPoolId,
+    ...idToken && { logins: { [appUserPoolId]: idToken } }
+  });
+  return new Promise((resolve, reject) => {
+    newCredentials().then((creds) => {
+      resolve(
+        stateUpdateFromNewAwsCredentials(
+          newCredentials,
+          creds.identityId,
+          idToken,
+          accessToken,
+          appMessages,
+          appRegion
+        )
+      );
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+};
+var refreshIdAndAccessTokensSemDispatch = (appConfig, refreshToken) => {
+  const { appAuthUrl, appClientId, appMessages } = appConfig;
+  return new Promise((resolve, reject) => {
+    if (refreshToken) {
+      fetch(appAuthUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `grant_type=refresh_token&client_id=${appClientId}&refresh_token=${refreshToken}`
+      }).then((response) => {
+        response.json().then((res) => {
+          loginWithAwsCognitoIdentityPoolSemDispatch(
+            appConfig,
+            res.id_token,
+            res.access_token
+          ).then((stateUpdate) => {
+            resolve(stateUpdate);
+          }).catch((err) => {
+            console.error(
+              appMessages.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS,
+              err
+            );
+            reject(err);
+          });
+        }).catch((err) => {
+          console.error(
+            appMessages.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE,
+            err
+          );
+          reject(err);
+        });
+      }).catch((err) => {
+        console.error(appMessages.LOG_COULD_NOT_GET_REFRESHED_TOKENS, err);
+        reject(err);
+      });
+    } else {
+      console.warn(appMessages.LOG_NO_REFRESH_TOKEN_AVAILABLE);
+      reject(Error(appMessages.LOG_NO_REFRESH_TOKEN_AVAILABLE));
+    }
+  });
+};
+var loginWithAuthorizationCodeSemDispatch = (appConfig, authorizationCode) => {
+  const { appAuthUrl, appClientId, appAuthRedirect, appMessages } = appConfig;
+  return new Promise((resolve, reject) => {
+    fetch(appAuthUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `grant_type=authorization_code&client_id=${appClientId}&code=${authorizationCode}&redirect_uri=${appAuthRedirect}`
+    }).then((response) => {
+      response.json().then((res) => {
+        refreshIdAndAccessTokensSemDispatch(appConfig, res.refresh_token).then((stateUpdate) => {
+          resolve({
+            ...stateUpdate,
+            refreshToken: res.refresh_token
+          });
+        }).catch((err) => {
+          console.error(
+            appMessages.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS,
+            err
+          );
+          reject(err);
+        });
+      }).catch((err) => {
+        console.error(
+          appMessages.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE,
+          err
+        );
+        reject(err);
+      });
+    }).catch((err) => {
+      console.error(appMessages.LOG_COULD_NOT_GET_IDENTIFICATION_TOKENS, err);
+      reject(err);
+    });
+  });
+};
+var logoff = (setUserState, appConfig) => new Promise((resolve, _reject) => {
+  updateRefreshTokenInSessionStorage(
+    void 0,
+    appConfig.appRefreshTokenStorageKey
+  );
+  setUserState((_prevState) => stateUpdateFromFailedLogin);
+  resolve();
+});
+var setAppConfig = (setUserState, appConfig) => {
+  const refreshToken = getRefreshTokenFromSessionStorage(
+    appConfig.appRefreshTokenStorageKey
+  );
+  if (refreshToken) {
+    refreshIdAndAccessTokens(setUserState, appConfig, refreshToken);
+  }
+};
+var loginWithAwsCognitoIdentityPool = (setUserState, appConfig, idToken, accessToken) => {
+  loginWithAwsCognitoIdentityPoolSemDispatch(appConfig, idToken, accessToken).then((stateUpdate) => {
+    setUserState((oldState) => ({ ...oldState, stateUpdate }));
+  }).catch(() => {
+    setUserState((_prevState) => stateUpdateFromFailedLogin);
+  });
+};
+var refreshIdAndAccessTokens = (setUserState, appConfig, refreshToken) => new Promise((resolve, reject) => {
+  refreshIdAndAccessTokensSemDispatch(appConfig, refreshToken).then((stateUpdate) => {
+    setUserState((prevState) => ({ ...prevState, ...stateUpdate }));
+    resolve();
+  }).catch((err) => {
+    setUserState((_prevState) => stateUpdateFromFailedLogin);
+    reject(err);
+  });
+});
+var loginWithAuthorizationCode = (setUserState, appConfig, authorizationCode) => new Promise((resolve, reject) => {
+  loginWithAuthorizationCodeSemDispatch(appConfig, authorizationCode).then((stateUpdate) => {
+    const { refreshToken } = stateUpdate;
+    updateRefreshTokenInSessionStorage(
+      refreshToken,
+      appConfig.appRefreshTokenStorageKey
+    );
+    setUserState((_prevState) => stateUpdate);
+    resolve();
+  }).catch((err) => {
+    const refreshToken = void 0;
+    updateRefreshTokenInSessionStorage(
+      refreshToken,
+      appConfig.appRefreshTokenStorageKey
+    );
+    setUserState((_prevState) => stateUpdateFromFailedLogin);
+    reject(err);
+  });
+});
+
+// src/UserContext.tsx
+var initialUserContextValue = {
+  user: initialUserState.user,
+  awsConfig: initialUserState.awsConfig,
+  awsCredentials: initialUserState.awsCredentials,
+  loginAnonymously: () => {
+  },
+  loginWithAuthorizationCode: () => Promise.reject(),
+  logoff: () => Promise.reject()
+};
+var UserContext = createContext2(initialUserContextValue);
+var useSetInterval = (callback, seconds) => {
+  const intervalRef = useRef();
+  const cancel = useCallback(() => {
+    const interval = intervalRef.current;
+    if (interval) {
+      intervalRef.current = void 0;
+      clearInterval(interval);
+    }
+  }, []);
+  useEffect(() => {
+    intervalRef.current = setInterval(callback, seconds);
+    return cancel;
+  }, [callback, seconds, cancel]);
+  return cancel;
+};
+var REFRESH_TOKEN_INTERVAL = 25 * 6e4;
+var UserProvider = ({ children }) => {
+  const { appConfig } = AppConfigContext_default();
+  const { appMessages } = appConfig;
+  const [userState, setUserState] = useState(initialUserState);
+  useEffect(() => {
+    setAppConfig(setUserState, appConfig);
+  }, [appConfig]);
+  const logoff2 = useCallback(
+    () => logoff(setUserState, appConfig),
+    [appConfig]
+  );
+  const loginWithAwsCognitoIdentityPool2 = useCallback(
+    (idToken, accessToken) => loginWithAwsCognitoIdentityPool(
+      setUserState,
+      appConfig,
+      idToken,
+      accessToken
+    ),
+    [appConfig]
+  );
+  const refreshIdAndAccessTokens2 = useCallback(
+    () => refreshIdAndAccessTokens(
+      setUserState,
+      appConfig,
+      userState.refreshToken
+    ),
+    [appConfig, userState.refreshToken]
+  );
+  const scheduledRefreshIdAndAccessTokens = useCallback(() => {
+    refreshIdAndAccessTokens2().catch(() => {
+      console.warn(appMessages.LOG_COULD_NOT_REFRESH_TOKENS);
+    });
+  }, [refreshIdAndAccessTokens2, appMessages]);
+  useSetInterval(scheduledRefreshIdAndAccessTokens, REFRESH_TOKEN_INTERVAL);
+  const loginAnonymously = useCallback(
+    () => loginWithAwsCognitoIdentityPool2(void 0, void 0),
+    [loginWithAwsCognitoIdentityPool2]
+  );
+  const loginWithAuthorizationCode2 = useCallback(
+    (authorizationCode) => loginWithAuthorizationCode(setUserState, appConfig, authorizationCode),
+    [appConfig]
+  );
+  useEffect(() => {
+    if (!userState.awsCredentials) {
+      refreshIdAndAccessTokens2().catch(() => {
+        console.warn(appMessages.LOG_COULD_NOT_REFRESH_TOKENS);
+      });
+    }
+  }, [userState.awsCredentials, refreshIdAndAccessTokens2, appMessages]);
+  return /* @__PURE__ */ React2.createElement(UserContext.Provider, {
+    value: {
+      user: userState.user,
+      awsConfig: userState.awsConfig,
+      awsCredentials: userState.awsCredentials,
+      loginAnonymously,
+      loginWithAuthorizationCode: loginWithAuthorizationCode2,
+      logoff: logoff2
+    }
+  }, children);
+};
+var useUser = () => {
+  const {
+    user,
+    awsConfig,
+    awsCredentials,
+    loginAnonymously,
+    loginWithAuthorizationCode: loginWithAuthorizationCode2,
+    logoff: logoff2
+  } = useContext2(UserContext);
+  return {
+    user,
+    awsConfig,
+    awsCredentials,
+    loginAnonymously,
+    loginWithAuthorizationCode: loginWithAuthorizationCode2,
+    logoff: logoff2
+  };
+};
+var UserContext_default = useUser;
+
+// src/DDBContext.tsx
+var DDBContext = createContext3({
+  documentDB: void 0
+});
 var DDBProvider = ({ children }) => {
   const { awsConfig, awsCredentials } = UserContext_default();
   const [documentDB, setDocumentDB] = useState2();
   useEffect2(() => {
     if (awsConfig) {
       const ddbClient = new DynamoDBClient(awsConfig);
-      setDocumentDB(new DynamoDBDocumentClient(ddbClient));
+      setDocumentDB(DynamoDBDocumentClient.from(ddbClient));
     } else {
       setDocumentDB(void 0);
     }
@@ -306,7 +390,7 @@ var DDBProvider = ({ children }) => {
     if (awsCredentials) {
       setDocumentDB((oldDocumentDB) => {
         if (oldDocumentDB) {
-          oldDocumentDB.service.config.update({ credentials: awsCredentials });
+          oldDocumentDB.config.credentials = awsCredentials;
         }
         return oldDocumentDB;
       });
@@ -319,27 +403,27 @@ var DDBProvider = ({ children }) => {
 var useDDB = () => {
   const { documentDB } = useContext3(DDBContext);
   const ddbGet = useCallback2(
-    (params) => documentDB.send(new GetCommand(params)),
+    (params) => documentDB ? documentDB.send(new GetCommand(params)) : Promise.reject(),
     [documentDB]
   );
   const ddbPut = useCallback2(
-    (params) => documentDB.send(new PutCommand(params)),
+    (params) => documentDB ? documentDB.send(new PutCommand(params)) : Promise.reject(),
     [documentDB]
   );
   const ddbUpdate = useCallback2(
-    (params) => documentDB.send(new UpdateCommand(params)),
+    (params) => documentDB ? documentDB.send(new UpdateCommand(params)) : Promise.reject(),
     [documentDB]
   );
   return {
     documentDB,
-    ddbGet: documentDB && ddbGet,
-    ddbPut: documentDB && ddbPut,
-    ddbUpdate: documentDB && ddbUpdate
+    ddbGet,
+    ddbPut,
+    ddbUpdate
   };
 };
 var DDBContext_default = useDDB;
 
-// src/LambdaContext.js
+// src/LambdaContext.tsx
 import React4, {
   createContext as createContext4,
   useCallback as useCallback3,
@@ -347,10 +431,16 @@ import React4, {
   useEffect as useEffect3,
   useState as useState3
 } from "react";
-import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
-var LambdaContext = createContext4();
+import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
+var LambdaContext = createContext4({
+  invokeLambda: (_functionName, _payload) => Promise.reject()
+});
 var LambdaProvider = ({ children }) => {
-  const { user: { accessToken }, awsConfig, awsCredentials } = UserContext_default();
+  const {
+    user: { accessToken },
+    awsConfig,
+    awsCredentials
+  } = UserContext_default();
   const [lambda, setLambda] = useState3();
   useEffect3(() => {
     if (awsConfig) {
@@ -363,38 +453,46 @@ var LambdaProvider = ({ children }) => {
     if (awsCredentials) {
       setLambda((oldLambda) => {
         if (oldLambda) {
-          oldLambda.config.update({ credentials: awsCredentials });
+          oldLambda.config.credentials = awsCredentials;
         }
         return oldLambda;
       });
     }
   }, [awsCredentials]);
-  const invokeLambda = useCallback3((functionName, payload) => {
-    const params = {
-      FunctionName: functionName,
-      ClientContext: btoa(JSON.stringify({ custom: { accessToken } }))
-    };
-    if (payload) {
-      params.Payload = JSON.stringify(payload);
-    }
-    const command = new InvokeCommand(params);
-    return new Promise((resolve, reject) => {
-      lambda.send(command).then((data) => {
-        if (!data.StatusCode || data.StatusCode !== 200 || !data.Payload) {
-          reject(data);
-        }
-        const responsePayload = JSON.parse(Buffer.from(data.Payload));
-        if (!responsePayload || !responsePayload.statusCode || responsePayload.statusCode !== 200) {
-          reject(data);
-        }
-        resolve(responsePayload.body);
-      }).catch((err) => {
-        reject(err);
-      });
-    });
-  }, [lambda, accessToken]);
+  const invokeLambda = useCallback3(
+    (functionName, payload) => {
+      if (lambda) {
+        const encoder = new TextEncoder();
+        const decoder = new TextDecoder();
+        const params = {
+          FunctionName: functionName,
+          ClientContext: btoa(JSON.stringify({ custom: { accessToken } })),
+          Payload: payload ? encoder.encode(JSON.stringify(payload)) : void 0
+        };
+        const command = new InvokeCommand(params);
+        return new Promise((resolve, reject) => {
+          lambda.send(command).then((data) => {
+            if (!data.StatusCode || data.StatusCode !== 200 || !data.Payload) {
+              reject(data);
+            }
+            const responsePayload = JSON.parse(decoder.decode(data.Payload));
+            if (!responsePayload || !responsePayload.statusCode || responsePayload.statusCode !== 200) {
+              reject(data);
+            }
+            resolve(responsePayload.body);
+          }).catch((err) => {
+            reject(err);
+          });
+        });
+      }
+      return Promise.reject("Lambda client is undefined");
+    },
+    [lambda, accessToken]
+  );
   return /* @__PURE__ */ React4.createElement(LambdaContext.Provider, {
-    value: { invokeLambda: lambda && invokeLambda }
+    value: {
+      invokeLambda: lambda ? invokeLambda : () => Promise.reject()
+    }
   }, children);
 };
 var useLambda = () => {
@@ -403,20 +501,7 @@ var useLambda = () => {
 };
 var LambdaContext_default = useLambda;
 
-// src/BaseAppScope.js
-import React8, { useEffect as useEffect6, useState as useState6 } from "react";
-import {
-  HashRouter,
-  Route,
-  Routes,
-  useNavigate as useNavigate2
-} from "react-router-dom";
-
-// src/AuthRedirect.js
-import { useEffect as useEffect5 } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-
-// src/MessageContext.js
+// src/MessageContext.tsx
 import React5, {
   createContext as createContext5,
   useCallback as useCallback4,
@@ -424,10 +509,16 @@ import React5, {
   useEffect as useEffect4,
   useState as useState4
 } from "react";
-var MessageContext = createContext5();
+var MessageContext = createContext5({
+  message: "",
+  showMessage: (_message) => {
+  },
+  dismissMessage: () => {
+  }
+});
 var MessageProvider = ({ children }) => {
   const [snackPack, setSnackPack] = useState4([]);
-  const [message, setMessage] = useState4(void 0);
+  const [message, setMessage] = useState4();
   useEffect4(() => {
     if (snackPack.length && !message) {
       setMessage(snackPack[0]);
@@ -454,14 +545,15 @@ var useMessageAreaState = () => {
 };
 var MessageContext_default = useMessage;
 
-// src/SpinnerContext.js
-import React6, {
-  createContext as createContext6,
-  useCallback as useCallback5,
-  useContext as useContext6,
-  useState as useState5
-} from "react";
-var SpinnerContext = createContext6();
+// src/SpinnerContext.tsx
+import React6, { createContext as createContext6, useCallback as useCallback5, useContext as useContext6, useState as useState5 } from "react";
+var SpinnerContext = createContext6({
+  showSpinner: () => {
+  },
+  dismissSpinner: () => {
+  },
+  showing: false
+});
 var SpinnerProvider = ({ children }) => {
   const [spinnerCount, setSpinnerCount] = useState5(0);
   const showSpinner = useCallback5(() => {
@@ -485,79 +577,80 @@ var useSpinnerAreaState = () => {
 };
 var SpinnerContext_default = useSpinner;
 
-// src/AuthRedirect.js
-var AuthRedirect = () => {
-  const { appConfig: { appMessages } } = AppConfigContext_default();
-  const { showMessage } = MessageContext_default();
-  const { loginWithAuthorizationCode } = UserContext_default();
-  const { authorization_code: authorizationCode } = useParams();
-  const { showSpinner, dismissSpinner } = SpinnerContext_default();
-  const navigate = useNavigate();
-  useEffect5(
-    () => {
-      showSpinner();
-      loginWithAuthorizationCode(authorizationCode).then(() => {
-        showMessage(appMessages.LOGIN_SUCCESSFUL);
-        navigate("/", { replace: true });
-      }).catch(() => {
-        showMessage(appMessages.LOGIN_FAILED);
-      }).finally(() => {
-        dismissSpinner();
-      });
-    },
-    [
-      authorizationCode,
-      loginWithAuthorizationCode,
-      showMessage,
-      navigate,
-      appMessages,
-      showSpinner,
-      dismissSpinner
-    ]
-  );
-  return null;
-};
-var AuthRedirect_default = AuthRedirect;
-
-// src/InfrastructureProvider.js
-import React7 from "react";
-var InfrastructureProvider = ({ appConfig, children }) => /* @__PURE__ */ React7.createElement(MessageProvider, null, /* @__PURE__ */ React7.createElement(SpinnerProvider, null, /* @__PURE__ */ React7.createElement(AppConfigProvider, {
+// src/InfrastructureProvider.tsx
+var InfrastructureProvider = ({
+  appConfig,
+  children
+}) => /* @__PURE__ */ React7.createElement(MessageProvider, null, /* @__PURE__ */ React7.createElement(SpinnerProvider, null, /* @__PURE__ */ React7.createElement(AppConfigProvider, {
   appConfig
 }, /* @__PURE__ */ React7.createElement(UserProvider, null, /* @__PURE__ */ React7.createElement(DDBProvider, null, /* @__PURE__ */ React7.createElement(LambdaProvider, null, children))))));
 var InfrastructureProvider_default = InfrastructureProvider;
 
-// src/BaseAppScope.js
-var useBaseAppScopeState = (appRoutes) => {
-  const [routes] = useState6([
-    ...appRoutes,
-    {
-      name: "authentication",
-      label: "Athentication",
-      path: "/authentication/:authorization_code",
-      hideFromMenu: true,
-      component: AuthRedirect_default
-    }
-  ]);
-  return { routes };
-};
-var RedirectAuthCode = ({ appConfig }) => {
-  const navigate = useNavigate2();
-  useEffect6(() => {
-    if (window.location.pathname === appConfig.appBasePath) {
-      const search = new URLSearchParams(window.location.search);
-      if (search.get("auth-redirect") !== null && search.get("code") !== null) {
-        window.history.replaceState({}, "", window.location.pathname);
-        navigate(`/authentication/${search.get("code")}`, { replace: true });
+// src/useAuthRedirect.ts
+import { useEffect as useEffect5 } from "react";
+
+// src/core/authRedirect.ts
+var authRedirect = (appBasePath, showSpinner, dismissSpinner, loginWithAuthorizationCode2, showMessage, appMessages) => {
+  if (window.location.pathname === appBasePath) {
+    const search = new URLSearchParams(window.location.search);
+    if (search.get("auth-redirect") !== null && search.get("code") !== null) {
+      window.history.replaceState({}, "", window.location.pathname);
+      const authorizationCode = search.get("code");
+      if (authorizationCode) {
+        showSpinner();
+        loginWithAuthorizationCode2(authorizationCode).then(() => {
+          if (appMessages) {
+            showMessage(appMessages.LOGIN_SUCCESSFUL);
+          }
+        }).catch(() => {
+          if (appMessages) {
+            showMessage(appMessages.LOGIN_FAILED);
+          }
+        }).finally(() => {
+          dismissSpinner();
+        });
       }
     }
-  }, []);
+  }
+};
+var authRedirect_default = authRedirect;
+
+// src/useAuthRedirect.ts
+var useAuthRedirect = () => {
+  const {
+    appConfig: { appBasePath, appMessages }
+  } = AppConfigContext_default();
+  const { showMessage } = MessageContext_default();
+  const { showSpinner, dismissSpinner } = SpinnerContext_default();
+  const { loginWithAuthorizationCode: loginWithAuthorizationCode2 } = UserContext_default();
+  useEffect5(() => {
+    authRedirect_default(
+      appBasePath,
+      showSpinner,
+      dismissSpinner,
+      loginWithAuthorizationCode2,
+      showMessage,
+      appMessages
+    );
+  }, [
+    appBasePath,
+    showSpinner,
+    dismissSpinner,
+    loginWithAuthorizationCode2,
+    showMessage,
+    appMessages
+  ]);
+};
+var useAuthRedirect_default = useAuthRedirect;
+
+// src/BaseAppScope.tsx
+var RedirectAuthCode = () => {
+  useAuthRedirect_default();
   return null;
 };
 var BaseAppScope = ({ appConfig, routes, children }) => /* @__PURE__ */ React8.createElement(InfrastructureProvider_default, {
   appConfig
-}, /* @__PURE__ */ React8.createElement(HashRouter, null, children, /* @__PURE__ */ React8.createElement(RedirectAuthCode, {
-  appConfig
-}), /* @__PURE__ */ React8.createElement(Routes, null, routes.map((route) => /* @__PURE__ */ React8.createElement(Route, {
+}, /* @__PURE__ */ React8.createElement(RedirectAuthCode, null), /* @__PURE__ */ React8.createElement(HashRouter, null, children, /* @__PURE__ */ React8.createElement(Routes, null, routes.map((route) => /* @__PURE__ */ React8.createElement(Route, {
   key: `${route.name}-route`,
   exact: true,
   path: route.path,
@@ -566,19 +659,55 @@ var BaseAppScope = ({ appConfig, routes, children }) => /* @__PURE__ */ React8.c
 })))));
 var BaseAppScope_default = BaseAppScope;
 
-// src/useAppBarState.js
+// src/core/makeAppConfig.ts
+var makeAppConfig = ({
+  appHost,
+  appBasePath,
+  appRegion,
+  appUserPoolId,
+  appUserPoolDomain,
+  appClientId,
+  appIdentityPoolId,
+  appRefreshTokenStorageKey,
+  appLogoUrl,
+  appMessages,
+  hideLogin
+}) => {
+  const appBaseAuthUrl = `https://${appUserPoolDomain}.auth.${appRegion}.amazoncognito.com`;
+  const appAuthRedirect = `${appHost}${appBasePath}?auth-redirect`;
+  const appAuthUrl = `${appBaseAuthUrl}/oauth2/token`;
+  const appExternalLoginUrl = `${appBaseAuthUrl}/login?client_id=${appClientId}&response_type=code&scope=email+openid+profile&redirect_uri=${appAuthRedirect}`;
+  return {
+    appBasePath,
+    appRegion,
+    appUserPoolId,
+    appClientId,
+    appIdentityPoolId,
+    appAuthRedirect,
+    appAuthUrl,
+    appExternalLoginUrl,
+    appRefreshTokenStorageKey,
+    appLogoUrl,
+    appMessages,
+    hideLogin: hideLogin || false
+  };
+};
+var makeAppConfig_default = makeAppConfig;
+
+// src/useAppBarState.ts
 import { useLocation } from "react-router-dom";
 var useAppBarState = (routes) => {
-  const { appConfig: { appExternalLoginUrl, appMessages, hideLogin } } = AppConfigContext_default();
+  const {
+    appConfig: { appMessages, hideLogin, appExternalLoginUrl }
+  } = AppConfigContext_default();
   const { showMessage } = MessageContext_default();
-  const { user: { name: userName }, logoff } = UserContext_default();
+  const {
+    user: { name: userName },
+    logoff: logoff2
+  } = UserContext_default();
   const location = useLocation();
   const logoffAndShowMessage = () => {
-    logoff().then(() => {
-      showMessage(appMessages.LOGOUT_SUCCESSFUL);
-    }).catch(() => {
-      showMessage(appMessages.LOGOUT_FAILED);
-    });
+    logoff2().then(() => showMessage(appMessages.LOGOUT_SUCCESSFUL)).catch(() => showMessage(appMessages.LOGOUT_FAILED));
   };
   const currentRoute = routes.find((route) => route.path === location.pathname);
   const currentRouteLabel = currentRoute ? currentRoute.label : "";
@@ -595,10 +724,14 @@ var useAppBarState = (routes) => {
 };
 var useAppBarState_default = useAppBarState;
 
-// src/useAppDrawerState.js
+// src/useAppDrawerState.ts
 var useAppDrawerState = (routes) => {
-  const { appConfig: { appLogoUrl } } = AppConfigContext_default();
-  const { user: { groups: userGroups } } = UserContext_default();
+  const {
+    appConfig: { appLogoUrl }
+  } = AppConfigContext_default();
+  const {
+    user: { groups: userGroups }
+  } = UserContext_default();
   const userFromAuthorizedGroup = (authorizedGroups) => {
     if (!authorizedGroups) {
       return true;
@@ -606,7 +739,9 @@ var useAppDrawerState = (routes) => {
     if (!userGroups) {
       return false;
     }
-    return authorizedGroups.some((authorizedGroup) => userGroups.includes(authorizedGroup));
+    return authorizedGroups.some(
+      (authorizedGroup) => userGroups.includes(authorizedGroup)
+    );
   };
   const menuRoutes = routes.filter((route) => !route.hideFromMenu).filter((route) => userFromAuthorizedGroup(route.authorizedGroups));
   return { appLogoUrl, menuRoutes };
@@ -614,11 +749,10 @@ var useAppDrawerState = (routes) => {
 var useAppDrawerState_default = useAppDrawerState;
 export {
   BaseAppScope_default as BaseAppScope,
-  makeAppConfig,
+  makeAppConfig_default as makeAppConfig,
   useAppBarState_default as useAppBarState,
   AppConfigContext_default as useAppConfig,
   useAppDrawerState_default as useAppDrawerState,
-  useBaseAppScopeState,
   DDBContext_default as useDDB,
   LambdaContext_default as useLambda,
   MessageContext_default as useMessage,
