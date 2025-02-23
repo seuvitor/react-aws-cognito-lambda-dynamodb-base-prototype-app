@@ -477,7 +477,7 @@ const D = w(void 0), Z = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   }, d = e.find((S) => S.path === c.pathname);
   return {
     currentRouteLabel: d ? d.label : "",
-    hideLoginButton: s || t,
+    hideLoginButton: !!s || t,
     appExternalLoginUrl: r,
     hideAccountButton: !s || t,
     userName: s,

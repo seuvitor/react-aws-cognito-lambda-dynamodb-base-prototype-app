@@ -8,6 +8,8 @@ import useUser from "./UserContext";
 import makeAppConfig from "./core/makeAppConfig";
 import useAppBarState from "./useAppBarState";
 import useAppDrawerState from "./useAppDrawerState";
+import type { AppRoute } from "./BaseAppScope";
+import type { AppConfig } from "./core/makeAppConfig";
 
 export {
 	BaseAppScope,
@@ -23,3 +25,5 @@ export {
 	useSpinnerAreaState,
 	useUser,
 };
+
+export type { AppRoute, AppConfig };

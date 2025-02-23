@@ -9,7 +9,7 @@ import { PutCommandOutput } from '@aws-sdk/lib-dynamodb';
 import { UpdateCommandInput } from '@aws-sdk/lib-dynamodb';
 import { UpdateCommandOutput } from '@aws-sdk/lib-dynamodb';
 
-declare type AppConfig = {
+export declare type AppConfig = {
     appBasePath: string;
     appAuthUrl: string;
     appClientId: string;
@@ -38,7 +38,7 @@ declare type AppMessages = {
     LOG_COULD_NOT_GET_IDENTIFICATION_TOKENS: string;
 };
 
-declare type AppRoute = {
+export declare type AppRoute = {
     name: string;
     label: string;
     path: string;
@@ -75,7 +75,7 @@ declare type MakeAppConfigParam = {
 
 export declare const useAppBarState: (routes: AppRoute[]) => {
     currentRouteLabel: string;
-    hideLoginButton: string | boolean;
+    hideLoginButton: boolean;
     appExternalLoginUrl: string;
     hideAccountButton: boolean;
     userName: string | undefined;

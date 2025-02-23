@@ -26,7 +26,7 @@ const useAppBarState = (routes: AppRoute[]) => {
 	const currentRoute = routes.find((route) => route.path === location.pathname);
 	const currentRouteLabel = currentRoute ? currentRoute.label : "";
 
-	const hideLoginButton = userName || hideLogin;
+	const hideLoginButton = !!userName || hideLogin;
 	const hideAccountButton = !userName || hideLogin;
 
 	return {
