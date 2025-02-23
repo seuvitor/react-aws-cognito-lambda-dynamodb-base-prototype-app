@@ -1,17 +1,17 @@
 {
 	"name": "react-aws-cognito-lambda-dynamodb-base-prototype-app",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Base components for prototyping a serverless React app making use of AWS Cognito, Lambda and DynamoDB",
-	"main": "dist/cjs/index.js",
-	"module": "dist/esm/index.js",
-	"files": ["dist/cjs", "dist/esm", "src"],
+	"type": "module",
+	"main": "dist/index.js",
+	"files": ["dist/*", "src"],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/seuvitor/react-aws-cognito-lambda-dynamodb-base-prototype-app.git"
 	},
 	"scripts": {
-		"build": "node custom-esbuild.js",
-		"start": "esbuild demo/src/index.tsx --loader:.ts=tsx --bundle --sourcemap --servedir=demo/public --serve=5000",
+		"build": "tsc -b && vite build",
+		"start": "tsc -b && vite dev",
 		"lint": "biome check .",
 		"lint-fix": "biome check --write ."
 	},
@@ -20,9 +20,12 @@
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"@types/node": "^22.13.0",
-		"@types/react": "^18.2.0",
-		"@types/react-dom": "^18.2.0",
-		"esbuild": "^0.15.15"
+		"@types/react": "^18.3.18",
+		"@types/react-dom": "^18.3.5",
+		"@vitejs/plugin-react-swc": "^3.8.0",
+		"typescript": "^5.7.3",
+		"vite": "^6.1.1",
+		"vite-plugin-dts": "^4.5.0"
 	},
 	"peerDependencies": {
 		"@aws-sdk/client-cognito-identity": "^3.215.0",

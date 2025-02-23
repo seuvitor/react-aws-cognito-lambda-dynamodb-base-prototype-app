@@ -1,5 +1,5 @@
-import React, { createContext, useCallback, useContext, useState } from "react";
-
+import { createContext, useCallback, useContext, useState } from "react";
+import type { PropsWithChildren } from "react";
 type SpinnerContextValue = {
 	showSpinner: () => void;
 	dismissSpinner: () => void;
@@ -12,7 +12,7 @@ const SpinnerContext = createContext<SpinnerContextValue>({
 	showing: false,
 });
 
-const SpinnerProvider = ({ children }) => {
+const SpinnerProvider = ({ children }: PropsWithChildren) => {
 	const [spinnerCount, setSpinnerCount] = useState(0);
 
 	const showSpinner = useCallback(() => {

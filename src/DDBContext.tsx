@@ -1,11 +1,3 @@
-import React, {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useState,
-} from "react";
-
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
 	DynamoDBDocumentClient,
@@ -21,6 +13,14 @@ import type {
 	UpdateCommandInput,
 	UpdateCommandOutput,
 } from "@aws-sdk/lib-dynamodb";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
+import type { PropsWithChildren } from "react";
 
 import useUser from "./UserContext";
 
@@ -32,7 +32,7 @@ const DDBContext = createContext<DDBContextValue>({
 	documentDB: undefined,
 });
 
-const DDBProvider = ({ children }) => {
+const DDBProvider = ({ children }: PropsWithChildren) => {
 	const { awsConfig, awsCredentials } = useUser();
 	const [documentDB, setDocumentDB] = useState<DynamoDBDocumentClient>();
 

@@ -1,11 +1,11 @@
-import React, {
+import {
 	createContext,
 	useCallback,
 	useContext,
 	useEffect,
 	useState,
 } from "react";
-
+import type { PropsWithChildren } from "react";
 type MessageContextValue = {
 	message: string | undefined;
 	showMessage: (message: string) => void;
@@ -18,7 +18,7 @@ const MessageContext = createContext<MessageContextValue>({
 	dismissMessage: () => {},
 });
 
-const MessageProvider = ({ children }) => {
+const MessageProvider = ({ children }: PropsWithChildren) => {
 	const [snackPack, setSnackPack] = useState<string[]>([]);
 	const [message, setMessage] = useState<string>();
 

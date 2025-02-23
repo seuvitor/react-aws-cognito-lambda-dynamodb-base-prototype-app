@@ -1,12 +1,12 @@
-import React, {
+import {
 	createContext,
 	useCallback,
 	useContext,
 	useEffect,
-	useState,
 	useRef,
+	useState,
 } from "react";
-
+import type { PropsWithChildren } from "react";
 import {
 	loginWithAuthorizationCode as _loginWithAuthorizationCode,
 	loginWithAwsCognitoIdentityPool as _loginWithAwsCognitoIdentityPool,
@@ -74,7 +74,7 @@ const useSetInterval = (callback: () => void, seconds: number) => {
 
 const REFRESH_TOKEN_INTERVAL = 25 * 60000;
 
-const UserProvider = ({ children }) => {
+const UserProvider = ({ children }: PropsWithChildren) => {
 	const { appConfig } = useAppConfig();
 	const { appMessages } = appConfig;
 

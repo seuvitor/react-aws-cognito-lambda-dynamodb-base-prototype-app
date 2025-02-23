@@ -1,13 +1,13 @@
-import React, {
+import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
+import type { InvokeCommandInput } from "@aws-sdk/client-lambda";
+import {
 	createContext,
 	useCallback,
 	useContext,
 	useEffect,
 	useState,
 } from "react";
-
-import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
-import type { InvokeCommandInput } from "@aws-sdk/client-lambda";
+import type { PropsWithChildren } from "react";
 
 import useUser from "./UserContext";
 
@@ -19,7 +19,7 @@ const LambdaContext = createContext<LambdaContextValue>({
 	invokeLambda: (_functionName, _payload) => Promise.reject(),
 });
 
-const LambdaProvider = ({ children }) => {
+const LambdaProvider = ({ children }: PropsWithChildren) => {
 	const {
 		user: { accessToken },
 		awsConfig,

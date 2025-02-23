@@ -24,7 +24,7 @@ const myAppMessages = {
 const myEnv = {
 	appHost: "http://localhost:5000",
 	appBasePath: "/",
-	appLogoUrl: "demoapp.png",
+	appLogoUrl: "demo/public/demoapp.png",
 	appRegion: "us-east-1",
 	appUserPoolId: "cognito-idp.us-east-1.amazonaws.com/us-east-1_SjfN8ExVX",
 	appUserPoolDomain: "carteira-investimentos",
