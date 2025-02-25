@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import type { JSX, PropsWithChildren } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 
 import InfrastructureProvider from "./InfrastructureProvider";

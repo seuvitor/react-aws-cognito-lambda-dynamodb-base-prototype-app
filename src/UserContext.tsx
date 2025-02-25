@@ -3,7 +3,6 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
-	useRef,
 	useState,
 } from "react";
 import type { PropsWithChildren } from "react";
@@ -55,21 +54,10 @@ const initialUserContextValue = {
 const UserContext = createContext<UserContextValue>(initialUserContextValue);
 
 const useSetInterval = (callback: () => void, seconds: number) => {
-	const intervalRef = useRef<NodeJS.Timeout>();
-	const cancel = useCallback(() => {
-		const interval = intervalRef.current;
-		if (interval) {
-			intervalRef.current = undefined;
-			clearInterval(interval);
-		}
-	}, []);
-
 	useEffect(() => {
-		intervalRef.current = setInterval(callback, seconds);
-		return cancel;
-	}, [callback, seconds, cancel]);
-
-	return cancel;
+		const intervalHandle = setInterval(callback, seconds);
+		return () => clearInterval(intervalHandle);
+	}, [callback, seconds]);
 };
 
 const REFRESH_TOKEN_INTERVAL = 25 * 60000;

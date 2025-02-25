@@ -2,6 +2,7 @@ import { CognitoIdentityCredentialProvider } from '@aws-sdk/credential-provider-
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { GetCommandInput } from '@aws-sdk/lib-dynamodb';
 import { GetCommandOutput } from '@aws-sdk/lib-dynamodb';
+import { JSX } from 'react';
 import { JSX as JSX_2 } from 'react/jsx-runtime';
 import { PropsWithChildren } from 'react';
 import { PutCommandInput } from '@aws-sdk/lib-dynamodb';
