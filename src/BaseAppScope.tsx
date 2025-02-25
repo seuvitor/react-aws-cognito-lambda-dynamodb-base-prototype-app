@@ -16,7 +16,6 @@ type AppRoute = {
 	path: string;
 	hideFromMenu: boolean;
 	component: () => JSX.Element;
-	options: { exact?: boolean };
 	authorizedGroups?: string[];
 };
 
@@ -34,10 +33,8 @@ const BaseAppScope = ({ appConfig, routes, children }: BaseAppScopeProps) => (
 				{routes.map((route) => (
 					<Route
 						key={`${route.name}-route`}
-						exact={true}
 						path={route.path}
 						element={<route.component />}
-						{...route.options}
 					/>
 				))}
 			</Routes>

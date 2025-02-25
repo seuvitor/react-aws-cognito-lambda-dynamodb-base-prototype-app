@@ -45,9 +45,6 @@ export declare type AppRoute = {
     path: string;
     hideFromMenu: boolean;
     component: () => JSX.Element;
-    options: {
-        exact?: boolean;
-    };
     authorizedGroups?: string[];
 };
 

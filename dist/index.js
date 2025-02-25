@@ -294,7 +294,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     ddbPut: n,
     ddbUpdate: r
   };
-}, x = w({
+}, F = w({
   invokeLambda: (e, o) => Promise.reject()
 }), he = ({ children: e }) => {
   const {
@@ -330,7 +330,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     [t, o]
   );
   return /* @__PURE__ */ u(
-    x.Provider,
+    F.Provider,
     {
       value: {
         invokeLambda: t ? i : () => Promise.reject()
@@ -339,7 +339,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     }
   );
 }, Ne = () => {
-  const { invokeLambda: e } = g(x);
+  const { invokeLambda: e } = g(F);
   return { invokeLambda: e };
 }, P = w({
   message: "",
@@ -358,7 +358,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     t(void 0);
   }, []);
   return /* @__PURE__ */ u(P.Provider, { value: { message: r, showMessage: s, dismissMessage: i }, children: e });
-}, F = () => {
+}, x = () => {
   const { showMessage: e } = g(P);
   return { showMessage: e };
 }, Re = () => {
@@ -404,7 +404,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
 }, _e = () => {
   const {
     appConfig: { appBasePath: e, appMessages: o }
-  } = L(), { showMessage: n } = F(), { showSpinner: r, dismissSpinner: t } = fe(), { loginWithAuthorizationCode: s } = A();
+  } = L(), { showMessage: n } = x(), { showSpinner: r, dismissSpinner: t } = fe(), { loginWithAuthorizationCode: s } = A();
   m(() => {
     Ce(
       e,
@@ -429,10 +429,8 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     /* @__PURE__ */ u(M, { children: o.map((r) => /* @__PURE__ */ u(
       B,
       {
-        exact: !0,
         path: r.path,
-        element: /* @__PURE__ */ u(r.component, {}),
-        ...r.options
+        element: /* @__PURE__ */ u(r.component, {})
       },
       `${r.name}-route`
     )) })
@@ -468,7 +466,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
 }, ke = (e) => {
   const {
     appConfig: { appMessages: o, hideLogin: n, appExternalLoginUrl: r }
-  } = L(), { showMessage: t } = F(), {
+  } = L(), { showMessage: t } = x(), {
     user: { name: s },
     logoff: i
   } = A(), c = H(), a = () => {
@@ -500,7 +498,7 @@ export {
   Ge as useAppDrawerState,
   Pe as useDDB,
   Ne as useLambda,
-  F as useMessage,
+  x as useMessage,
   Re as useMessageAreaState,
   fe as useSpinner,
   De as useSpinnerAreaState,

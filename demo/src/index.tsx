@@ -51,7 +51,6 @@ const routes = [
 		path: "/",
 		hideFromMenu: false,
 		component: MainContent,
-		options: { exact: true },
 	},
 ];
 
