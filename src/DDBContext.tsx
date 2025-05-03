@@ -21,7 +21,6 @@ import {
 	useState,
 } from "react";
 import type { PropsWithChildren } from "react";
-
 import useUser from "./UserContext";
 
 type DDBContextValue = {
@@ -61,14 +60,21 @@ const DDBProvider = ({ children }: PropsWithChildren) => {
 	);
 };
 
-const useDDB = () => {
+const useDDB = <T,>() => {
 	const { documentDB } = useContext(DDBContext);
 
 	const ddbGet = useCallback(
-		(params: GetCommandInput) =>
+		(
+			params: GetCommandInput,
+		): Promise<Omit<GetCommandOutput, "Item"> & { Item?: T }> =>
 			documentDB
-				? documentDB.send(new GetCommand(params))
-				: Promise.reject<GetCommandOutput>(),
+				? documentDB
+						.send(new GetCommand(params))
+						.then(
+							(output) =>
+								output as Omit<GetCommandOutput, "Item"> & { Item?: T },
+						)
+				: Promise.reject<Omit<GetCommandOutput, "Item"> & { Item?: T }>(),
 		[documentDB],
 	);
 
