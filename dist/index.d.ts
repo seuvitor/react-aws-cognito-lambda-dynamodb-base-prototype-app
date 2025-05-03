@@ -89,9 +89,11 @@ export declare const useAppDrawerState: (routes: AppRoute[]) => {
     menuRoutes: AppRoute[];
 };
 
-export declare const useDDB: () => {
+export declare const useDDB: <T>() => {
     documentDB: DynamoDBDocumentClient | undefined;
-    ddbGet: (params: GetCommandInput) => Promise<GetCommandOutput>;
+    ddbGet: (params: GetCommandInput) => Promise<Omit<GetCommandOutput, "Item"> & {
+        Item?: T;
+    }>;
     ddbPut: (params: PutCommandInput) => Promise<PutCommandOutput>;
     ddbUpdate: (params: UpdateCommandInput) => Promise<UpdateCommandOutput>;
 };

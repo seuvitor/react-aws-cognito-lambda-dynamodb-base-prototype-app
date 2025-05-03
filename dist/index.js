@@ -45,28 +45,28 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
 }, T = {
   ...ee,
   refreshToken: void 0
-}, oe = (e, o, n, r, t, s) => {
-  const i = n && JSON.parse(atob(n.split(".")[1])), c = {
+}, oe = (e, o, t, r, s, n) => {
+  const i = t && JSON.parse(atob(t.split(".")[1])), c = {
     identityId: o,
     id: i == null ? void 0 : i.sub,
-    name: i ? i.name : t.LOGGED_OUT_USER,
+    name: i ? i.name : s.LOGGED_OUT_USER,
     email: i == null ? void 0 : i.email,
     groups: i == null ? void 0 : i["cognito:groups"],
-    idToken: n,
+    idToken: t,
     accessToken: r
   };
   return {
     awsCredentials: e,
     user: c,
-    awsConfig: e ? { region: s, credentials: e } : void 0
+    awsConfig: e ? { region: n, credentials: e } : void 0
   };
-}, U = (e, o, n) => {
-  const { appIdentityPoolId: r, appRegion: t, appUserPoolId: s, appMessages: i } = e, c = q({
+}, U = (e, o, t) => {
+  const { appIdentityPoolId: r, appRegion: s, appUserPoolId: n, appMessages: i } = e, c = q({
     client: new V({
-      region: t
+      region: s
     }),
     identityPoolId: r,
-    ...o && { logins: { [s]: o } }
+    ...o && { logins: { [n]: o } }
   });
   return new Promise((a, d) => {
     c().then((l) => {
@@ -75,9 +75,9 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
           c,
           l.identityId,
           o,
-          n,
+          t,
           i,
-          t
+          s
         )
       );
     }).catch((l) => {
@@ -85,9 +85,9 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     });
   });
 }, y = (e, o) => {
-  const { appAuthUrl: n, appClientId: r, appMessages: t } = e;
-  return new Promise((s, i) => {
-    o ? fetch(n, {
+  const { appAuthUrl: t, appClientId: r, appMessages: s } = e;
+  return new Promise((n, i) => {
+    o ? fetch(t, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `grant_type=refresh_token&client_id=${r}&refresh_token=${o}`
@@ -98,30 +98,30 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
           a.id_token,
           a.access_token
         ).then((d) => {
-          s(d);
+          n(d);
         }).catch((d) => {
           console.error(
-            t.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS,
+            s.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS,
             d
           ), i(d);
         });
       }).catch((a) => {
         console.error(
-          t.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE,
+          s.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE,
           a
         ), i(a);
       });
     }).catch((c) => {
-      console.error(t.LOG_COULD_NOT_GET_REFRESHED_TOKENS, c), i(c);
-    }) : (console.warn(t.LOG_NO_REFRESH_TOKEN_AVAILABLE), i(Error(t.LOG_NO_REFRESH_TOKEN_AVAILABLE)));
+      console.error(s.LOG_COULD_NOT_GET_REFRESHED_TOKENS, c), i(c);
+    }) : (console.warn(s.LOG_NO_REFRESH_TOKEN_AVAILABLE), i(Error(s.LOG_NO_REFRESH_TOKEN_AVAILABLE)));
   });
 }, ne = (e, o) => {
-  const { appAuthUrl: n, appClientId: r, appAuthRedirect: t, appMessages: s } = e;
+  const { appAuthUrl: t, appClientId: r, appAuthRedirect: s, appMessages: n } = e;
   return new Promise((i, c) => {
-    fetch(n, {
+    fetch(t, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `grant_type=authorization_code&client_id=${r}&code=${o}&redirect_uri=${t}`
+      body: `grant_type=authorization_code&client_id=${r}&code=${o}&redirect_uri=${s}`
     }).then((a) => {
       a.json().then((d) => {
         y(e, d.refresh_token).then((l) => {
@@ -131,54 +131,54 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
           });
         }).catch((l) => {
           console.error(
-            s.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS,
+            n.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS,
             l
           ), c(l);
         });
       }).catch((d) => {
         console.error(
-          s.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE,
+          n.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE,
           d
         ), c(d);
       });
     }).catch((a) => {
-      console.error(s.LOG_COULD_NOT_GET_IDENTIFICATION_TOKENS, a), c(a);
+      console.error(n.LOG_COULD_NOT_GET_IDENTIFICATION_TOKENS, a), c(a);
     });
   });
-}, te = (e, o) => new Promise((n, r) => {
+}, te = (e, o) => new Promise((t, r) => {
   I(
     void 0,
     o.appRefreshTokenStorageKey
-  ), e((t) => T), n();
+  ), e((s) => T), t();
 }), se = (e, o) => {
-  const n = Z(
+  const t = Z(
     o.appRefreshTokenStorageKey
   );
-  n && k(e, o, n);
-}, re = (e, o, n, r) => {
-  U(o, n, r).then((t) => {
-    e((s) => ({ ...s, stateUpdate: t }));
+  t && k(e, o, t);
+}, re = (e, o, t, r) => {
+  U(o, t, r).then((s) => {
+    e((n) => ({ ...n, stateUpdate: s }));
   }).catch(() => {
-    e((t) => T);
+    e((s) => T);
   });
-}, k = (e, o, n) => new Promise((r, t) => {
-  y(o, n).then((s) => {
-    e((i) => ({ ...i, ...s })), r();
-  }).catch((s) => {
-    e((i) => T), t(s);
+}, k = (e, o, t) => new Promise((r, s) => {
+  y(o, t).then((n) => {
+    e((i) => ({ ...i, ...n })), r();
+  }).catch((n) => {
+    e((i) => T), s(n);
   });
-}), ie = (e, o, n) => new Promise((r, t) => {
-  ne(o, n).then((s) => {
-    const { refreshToken: i } = s;
+}), ie = (e, o, t) => new Promise((r, s) => {
+  ne(o, t).then((n) => {
+    const { refreshToken: i } = n;
     I(
       i,
       o.appRefreshTokenStorageKey
-    ), e((c) => s), r();
-  }).catch((s) => {
+    ), e((c) => n), r();
+  }).catch((n) => {
     I(
       void 0,
       o.appRefreshTokenStorageKey
-    ), e((c) => T), t(s);
+    ), e((c) => T), s(n);
   });
 }), ce = {
   user: E.user,
@@ -190,20 +190,20 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   logoff: () => Promise.reject()
 }, G = w(ce), ae = (e, o) => {
   m(() => {
-    const n = setInterval(e, o);
-    return () => clearInterval(n);
+    const t = setInterval(e, o);
+    return () => clearInterval(t);
   }, [e, o]);
 }, de = 25 * 6e4, ue = ({ children: e }) => {
-  const { appConfig: o } = L(), { appMessages: n } = o, [r, t] = _(E);
+  const { appConfig: o } = L(), { appMessages: t } = o, [r, s] = _(E);
   m(() => {
-    se(t, o);
+    se(s, o);
   }, [o]);
-  const s = h(
-    () => te(t, o),
+  const n = h(
+    () => te(s, o),
     [o]
   ), i = h(
     (p, C) => re(
-      t,
+      s,
       o,
       p,
       C
@@ -211,29 +211,29 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     [o]
   ), c = h(
     () => k(
-      t,
+      s,
       o,
       r.refreshToken
     ),
     [o, r.refreshToken]
   ), a = h(() => {
     c().catch(() => {
-      console.warn(n.LOG_COULD_NOT_REFRESH_TOKENS);
+      console.warn(t.LOG_COULD_NOT_REFRESH_TOKENS);
     });
-  }, [c, n]);
+  }, [c, t]);
   ae(a, de);
   const d = h(
     () => i(void 0, void 0),
     [i]
   ), l = h(
-    (p) => ie(t, o, p),
+    (p) => ie(s, o, p),
     [o]
   );
   return m(() => {
     r.awsCredentials || c().catch(() => {
-      console.warn(n.LOG_COULD_NOT_REFRESH_TOKENS);
+      console.warn(t.LOG_COULD_NOT_REFRESH_TOKENS);
     });
-  }, [r.awsCredentials, c, n]), /* @__PURE__ */ u(
+  }, [r.awsCredentials, c, t]), /* @__PURE__ */ u(
     G.Provider,
     {
       value: {
@@ -242,7 +242,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
         awsCredentials: r.awsCredentials,
         loginAnonymously: d,
         loginWithAuthorizationCode: l,
-        logoff: s
+        logoff: n
       },
       children: e
     }
@@ -251,47 +251,49 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   const {
     user: e,
     awsConfig: o,
-    awsCredentials: n,
+    awsCredentials: t,
     loginAnonymously: r,
-    loginWithAuthorizationCode: t,
-    logoff: s
+    loginWithAuthorizationCode: s,
+    logoff: n
   } = g(G);
   return {
     user: e,
     awsConfig: o,
-    awsCredentials: n,
+    awsCredentials: t,
     loginAnonymously: r,
-    loginWithAuthorizationCode: t,
-    logoff: s
+    loginWithAuthorizationCode: s,
+    logoff: n
   };
 }, b = w({
   documentDB: void 0
 }), le = ({ children: e }) => {
-  const { awsConfig: o, awsCredentials: n } = A(), [r, t] = _();
+  const { awsConfig: o, awsCredentials: t } = A(), [r, s] = _();
   return m(() => {
     if (o) {
-      const s = new K(o);
-      t(J.from(s));
+      const n = new K(o);
+      s(J.from(n));
     } else
-      t(void 0);
+      s(void 0);
   }, [o]), m(() => {
-    n && t((s) => (s && (s.config.credentials = n), s));
-  }, [n]), /* @__PURE__ */ u(b.Provider, { value: { documentDB: r }, children: e });
+    t && s((n) => (n && (n.config.credentials = t), n));
+  }, [t]), /* @__PURE__ */ u(b.Provider, { value: { documentDB: r }, children: e });
 }, Pe = () => {
   const { documentDB: e } = g(b), o = h(
-    (t) => e ? e.send(new W(t)) : Promise.reject(),
+    (s) => e ? e.send(new W(s)).then(
+      (n) => n
+    ) : Promise.reject(),
     [e]
-  ), n = h(
-    (t) => e ? e.send(new z(t)) : Promise.reject(),
+  ), t = h(
+    (s) => e ? e.send(new z(s)) : Promise.reject(),
     [e]
   ), r = h(
-    (t) => e ? e.send(new j(t)) : Promise.reject(),
+    (s) => e ? e.send(new j(s)) : Promise.reject(),
     [e]
   );
   return {
     documentDB: e,
     ddbGet: o,
-    ddbPut: n,
+    ddbPut: t,
     ddbUpdate: r
   };
 }, F = w({
@@ -299,24 +301,24 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
 }), he = ({ children: e }) => {
   const {
     user: { accessToken: o },
-    awsConfig: n,
+    awsConfig: t,
     awsCredentials: r
-  } = A(), [t, s] = _();
+  } = A(), [s, n] = _();
   m(() => {
-    s(n ? new Q(n) : void 0);
-  }, [n]), m(() => {
-    r && s((c) => (c && (c.config.credentials = r), c));
+    n(t ? new Q(t) : void 0);
+  }, [t]), m(() => {
+    r && n((c) => (c && (c.config.credentials = r), c));
   }, [r]);
   const i = h(
     (c, a) => {
-      if (t) {
+      if (s) {
         const d = new TextEncoder(), l = new TextDecoder(), p = {
           FunctionName: c,
           ClientContext: btoa(JSON.stringify({ custom: { accessToken: o } })),
           Payload: a ? d.encode(JSON.stringify(a)) : void 0
         }, C = new X(p);
         return new Promise((S, v) => {
-          t.send(C).then((f) => {
+          s.send(C).then((f) => {
             (!f.StatusCode || f.StatusCode !== 200 || !f.Payload) && v(f);
             const O = JSON.parse(l.decode(f.Payload));
             (!O || !O.statusCode || O.statusCode !== 200) && v(f), S(O.body);
@@ -327,13 +329,13 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
       }
       return Promise.reject("Lambda client is undefined");
     },
-    [t, o]
+    [s, o]
   );
   return /* @__PURE__ */ u(
     F.Provider,
     {
       value: {
-        invokeLambda: t ? i : () => Promise.reject()
+        invokeLambda: s ? i : () => Promise.reject()
       },
       children: e
     }
@@ -348,16 +350,16 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   dismissMessage: () => {
   }
 }), pe = ({ children: e }) => {
-  const [o, n] = _([]), [r, t] = _();
+  const [o, t] = _([]), [r, s] = _();
   m(() => {
-    o.length && !r && (t(o[0]), n((c) => c.slice(1)));
+    o.length && !r && (s(o[0]), t((c) => c.slice(1)));
   }, [o, r]);
-  const s = h((c) => {
-    n((a) => [...a, c]);
+  const n = h((c) => {
+    t((a) => [...a, c]);
   }, []), i = h(() => {
-    t(void 0);
+    s(void 0);
   }, []);
-  return /* @__PURE__ */ u(P.Provider, { value: { message: r, showMessage: s, dismissMessage: i }, children: e });
+  return /* @__PURE__ */ u(P.Provider, { value: { message: r, showMessage: n, dismissMessage: i }, children: e });
 }, x = () => {
   const { showMessage: e } = g(P);
   return { showMessage: e };
@@ -371,12 +373,12 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   },
   showing: !1
 }), me = ({ children: e }) => {
-  const [o, n] = _(0), r = h(() => {
-    n((i) => i + 1);
-  }, []), t = h(() => {
-    n((i) => i - 1);
-  }, []), s = o > 0;
-  return /* @__PURE__ */ u(N.Provider, { value: { showSpinner: r, dismissSpinner: t, showing: s }, children: e });
+  const [o, t] = _(0), r = h(() => {
+    t((i) => i + 1);
+  }, []), s = h(() => {
+    t((i) => i - 1);
+  }, []), n = o > 0;
+  return /* @__PURE__ */ u(N.Provider, { value: { showSpinner: r, dismissSpinner: s, showing: n }, children: e });
 }, fe = () => {
   const { showSpinner: e, dismissSpinner: o } = g(N);
   return { showSpinner: e, dismissSpinner: o };
@@ -386,46 +388,46 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
 }, ge = ({
   appConfig: e,
   children: o
-}) => /* @__PURE__ */ u(pe, { children: /* @__PURE__ */ u(me, { children: /* @__PURE__ */ u(Y, { appConfig: e, children: /* @__PURE__ */ u(ue, { children: /* @__PURE__ */ u(le, { children: /* @__PURE__ */ u(he, { children: o }) }) }) }) }) }), Ce = (e, o, n, r, t, s) => {
+}) => /* @__PURE__ */ u(pe, { children: /* @__PURE__ */ u(me, { children: /* @__PURE__ */ u(Y, { appConfig: e, children: /* @__PURE__ */ u(ue, { children: /* @__PURE__ */ u(le, { children: /* @__PURE__ */ u(he, { children: o }) }) }) }) }) }), Ce = (e, o, t, r, s, n) => {
   if (window.location.pathname === e) {
     const i = new URLSearchParams(window.location.search);
     if (i.get("auth-redirect") !== null && i.get("code") !== null) {
       window.history.replaceState({}, "", window.location.pathname);
       const c = i.get("code");
       c && (o(), r(c).then(() => {
-        s && t(s.LOGIN_SUCCESSFUL);
+        n && s(n.LOGIN_SUCCESSFUL);
       }).catch(() => {
-        s && t(s.LOGIN_FAILED);
+        n && s(n.LOGIN_FAILED);
       }).finally(() => {
-        n();
+        t();
       }));
     }
   }
 }, _e = () => {
   const {
     appConfig: { appBasePath: e, appMessages: o }
-  } = L(), { showMessage: n } = x(), { showSpinner: r, dismissSpinner: t } = fe(), { loginWithAuthorizationCode: s } = A();
+  } = L(), { showMessage: t } = x(), { showSpinner: r, dismissSpinner: s } = fe(), { loginWithAuthorizationCode: n } = A();
   m(() => {
     Ce(
       e,
       r,
-      t,
       s,
       n,
+      t,
       o
     );
   }, [
     e,
     r,
-    t,
     s,
     n,
+    t,
     o
   ]);
-}, we = () => (_e(), null), Ue = ({ appConfig: e, routes: o, children: n }) => /* @__PURE__ */ R(ge, { appConfig: e, children: [
+}, we = () => (_e(), null), Ue = ({ appConfig: e, routes: o, children: t }) => /* @__PURE__ */ R(ge, { appConfig: e, children: [
   /* @__PURE__ */ u(we, {}),
   /* @__PURE__ */ R($, { children: [
-    n,
+    t,
     /* @__PURE__ */ u(M, { children: o.map((r) => /* @__PURE__ */ u(
       B,
       {
@@ -438,22 +440,22 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
 ] }), ye = ({
   appHost: e,
   appBasePath: o,
-  appRegion: n,
+  appRegion: t,
   appUserPoolId: r,
-  appUserPoolDomain: t,
-  appClientId: s,
+  appUserPoolDomain: s,
+  appClientId: n,
   appIdentityPoolId: i,
   appRefreshTokenStorageKey: c,
   appLogoUrl: a,
   appMessages: d,
   hideLogin: l
 }) => {
-  const p = `https://${t}.auth.${n}.amazoncognito.com`, C = `${e}${o}?auth-redirect`, S = `${p}/oauth2/token`, v = `${p}/login?client_id=${s}&response_type=code&scope=email+openid+profile&redirect_uri=${C}`;
+  const p = `https://${s}.auth.${t}.amazoncognito.com`, C = `${e}${o}?auth-redirect`, S = `${p}/oauth2/token`, v = `${p}/login?client_id=${n}&response_type=code&scope=email+openid+profile&redirect_uri=${C}`;
   return {
     appBasePath: o,
-    appRegion: n,
+    appRegion: t,
     appUserPoolId: r,
-    appClientId: s,
+    appClientId: n,
     appIdentityPoolId: i,
     appAuthRedirect: C,
     appAuthUrl: S,
@@ -465,30 +467,30 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   };
 }, ke = (e) => {
   const {
-    appConfig: { appMessages: o, hideLogin: n, appExternalLoginUrl: r }
-  } = L(), { showMessage: t } = x(), {
-    user: { name: s },
+    appConfig: { appMessages: o, hideLogin: t, appExternalLoginUrl: r }
+  } = L(), { showMessage: s } = x(), {
+    user: { name: n },
     logoff: i
   } = A(), c = H(), a = () => {
-    i().then(() => t(o.LOGOUT_SUCCESSFUL)).catch(() => t(o.LOGOUT_FAILED));
+    i().then(() => s(o.LOGOUT_SUCCESSFUL)).catch(() => s(o.LOGOUT_FAILED));
   }, d = e.find((S) => S.path === c.pathname);
   return {
     currentRouteLabel: d ? d.label : "",
-    hideLoginButton: !!s || n,
+    hideLoginButton: !!n || t,
     appExternalLoginUrl: r,
-    hideAccountButton: !s || n,
-    userName: s,
+    hideAccountButton: !n || t,
+    userName: n,
     logoffAndShowMessage: a
   };
 }, Ge = (e) => {
   const {
     appConfig: { appLogoUrl: o }
   } = L(), {
-    user: { groups: n }
-  } = A(), r = (s) => s ? n ? s.some(
-    (i) => n.includes(i)
-  ) : !1 : !0, t = e.filter((s) => !s.hideFromMenu).filter((s) => r(s.authorizedGroups));
-  return { appLogoUrl: o, menuRoutes: t };
+    user: { groups: t }
+  } = A(), r = (n) => n ? t ? n.some(
+    (i) => t.includes(i)
+  ) : !1 : !0, s = e.filter((n) => !n.hideFromMenu).filter((n) => r(n.authorizedGroups));
+  return { appLogoUrl: o, menuRoutes: s };
 };
 export {
   Ue as BaseAppScope,
