@@ -1,13 +1,13 @@
 import { jsx as u, jsxs as R } from "react/jsx-runtime";
-import { createContext as w, useContext as f, useState as _, useEffect as m, useCallback as h } from "react";
+import { createContext as w, useContext as g, useState as _, useEffect as m, useCallback as h } from "react";
 import { HashRouter as $, Routes as B, Route as M, useLocation as H } from "react-router-dom";
 import { DynamoDBClient as K } from "@aws-sdk/client-dynamodb";
-import { GetCommand as W, PutCommand as z, UpdateCommand as J, DynamoDBDocumentClient as V } from "@aws-sdk/lib-dynamodb";
-import { CognitoIdentityClient as j } from "@aws-sdk/client-cognito-identity";
+import { GetCommand as W, PutCommand as z, UpdateCommand as j, DynamoDBDocumentClient as J } from "@aws-sdk/lib-dynamodb";
+import { CognitoIdentityClient as V } from "@aws-sdk/client-cognito-identity";
 import { fromCognitoIdentityPool as q } from "@aws-sdk/credential-provider-cognito-identity";
 import { LambdaClient as Q, InvokeCommand as X } from "@aws-sdk/client-lambda";
 const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.Provider, { value: { appConfig: e }, children: o }), L = () => {
-  const e = f(D);
+  const e = g(D);
   if (e === void 0)
     throw new Error(
       "useAppConfig can only be used in the scope of a AppConfigProvider"
@@ -62,7 +62,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   };
 }, U = (e, o, t) => {
   const { appIdentityPoolId: r, appRegion: s, appUserPoolId: n, appMessages: i } = e, c = q({
-    client: new j({
+    client: new V({
       region: s
     }),
     identityPoolId: r,
@@ -188,7 +188,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   },
   loginWithAuthorizationCode: () => Promise.reject(),
   logoff: () => Promise.reject()
-}, G = w(ce), ae = (e, o) => {
+}, b = w(ce), ae = (e, o) => {
   m(() => {
     const t = setInterval(e, o);
     return () => clearInterval(t);
@@ -234,7 +234,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
       console.warn(t.LOG_COULD_NOT_REFRESH_TOKENS);
     });
   }, [r.awsCredentials, c, t]), /* @__PURE__ */ u(
-    G.Provider,
+    b.Provider,
     {
       value: {
         user: r.user,
@@ -255,7 +255,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     loginAnonymously: r,
     loginWithAuthorizationCode: s,
     logoff: n
-  } = f(G);
+  } = g(b);
   return {
     user: e,
     awsConfig: o,
@@ -264,28 +264,28 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     loginWithAuthorizationCode: s,
     logoff: n
   };
-}, b = w({
+}, G = w({
   documentDB: void 0
 }), le = ({ children: e }) => {
   const { awsConfig: o, awsCredentials: t } = A(), [r, s] = _();
   return m(() => {
     if (o) {
       const n = new K(o);
-      s(V.from(n));
+      s(J.from(n));
     } else
       s(void 0);
   }, [o]), m(() => {
     t && s((n) => (n && (n.config.credentials = t), n));
-  }, [t]), /* @__PURE__ */ u(b.Provider, { value: { documentDB: r }, children: e });
+  }, [t]), /* @__PURE__ */ u(G.Provider, { value: { documentDB: r }, children: e });
 }, Pe = () => {
-  const { documentDB: e } = f(b), o = h(
+  const { documentDB: e } = g(G), o = h(
     (s) => e ? e.send(new W(s)).then((n) => n) : Promise.reject(),
     [e]
   ), t = h(
     (s) => e ? e.send(new z(s)) : Promise.reject(),
     [e]
   ), r = h(
-    (s) => e ? e.send(new J(s)) : Promise.reject(),
+    (s) => e ? e.send(new j(s)) : Promise.reject(),
     [e]
   );
   return e ? {
@@ -312,30 +312,37 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   }, [t]), m(() => {
     r && n((c) => (c && (c.config.credentials = r), c));
   }, [r]);
-  const i = s ? h(
+  const i = h(
     (c, a) => {
-      const d = new TextEncoder(), l = new TextDecoder(), p = {
-        FunctionName: c,
-        ClientContext: btoa(JSON.stringify({ custom: { accessToken: o } })),
-        Payload: a ? d.encode(JSON.stringify(a)) : void 0
-      }, C = new X(p);
-      return new Promise((S, v) => {
-        s.send(C).then((g) => {
-          (!g.StatusCode || g.StatusCode !== 200 || !g.Payload) && v(g);
-          const O = JSON.parse(
-            l.decode(g.Payload)
-          );
-          (!O || !O.statusCode || O.statusCode !== 200) && v(g), S(O.body);
-        }).catch((g) => {
-          v(g);
+      if (s) {
+        const d = new TextEncoder(), l = new TextDecoder(), p = {
+          FunctionName: c,
+          ClientContext: btoa(JSON.stringify({ custom: { accessToken: o } })),
+          Payload: a ? d.encode(JSON.stringify(a)) : void 0
+        }, C = new X(p);
+        return new Promise((S, v) => {
+          s.send(C).then((f) => {
+            (!f.StatusCode || f.StatusCode !== 200 || !f.Payload) && v(f);
+            const O = JSON.parse(l.decode(f.Payload));
+            (!O || !O.statusCode || O.statusCode !== 200) && v(f), S(O.body);
+          }).catch((f) => {
+            v(f);
+          });
         });
-      });
+      }
+      return Promise.reject("Lambda client is undefined");
     },
     [s, o]
-  ) : void 0;
-  return /* @__PURE__ */ u(F.Provider, { value: { invokeLambda: i }, children: e });
+  );
+  return /* @__PURE__ */ u(
+    F.Provider,
+    {
+      value: { invokeLambda: s ? i : void 0 },
+      children: e
+    }
+  );
 }, Ne = () => {
-  const { invokeLambda: e } = f(F);
+  const { invokeLambda: e } = g(F);
   return { invokeLambda: e };
 }, P = w({
   message: "",
@@ -355,10 +362,10 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   }, []);
   return /* @__PURE__ */ u(P.Provider, { value: { message: r, showMessage: n, dismissMessage: i }, children: e });
 }, x = () => {
-  const { showMessage: e } = f(P);
+  const { showMessage: e } = g(P);
   return { showMessage: e };
 }, Re = () => {
-  const { message: e, dismissMessage: o } = f(P);
+  const { message: e, dismissMessage: o } = g(P);
   return { message: e, dismissMessage: o };
 }, N = w({
   showSpinner: () => {
@@ -373,13 +380,13 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     t((i) => i - 1);
   }, []), n = o > 0;
   return /* @__PURE__ */ u(N.Provider, { value: { showSpinner: r, dismissSpinner: s, showing: n }, children: e });
-}, ge = () => {
-  const { showSpinner: e, dismissSpinner: o } = f(N);
+}, fe = () => {
+  const { showSpinner: e, dismissSpinner: o } = g(N);
   return { showSpinner: e, dismissSpinner: o };
 }, De = () => {
-  const { showing: e } = f(N);
+  const { showing: e } = g(N);
   return { showing: e };
-}, fe = ({
+}, ge = ({
   appConfig: e,
   children: o
 }) => /* @__PURE__ */ u(pe, { children: /* @__PURE__ */ u(me, { children: /* @__PURE__ */ u(Y, { appConfig: e, children: /* @__PURE__ */ u(ue, { children: /* @__PURE__ */ u(le, { children: /* @__PURE__ */ u(he, { children: o }) }) }) }) }) }), Ce = (e, o, t, r, s, n) => {
@@ -400,7 +407,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
 }, _e = () => {
   const {
     appConfig: { appBasePath: e, appMessages: o }
-  } = L(), { showMessage: t } = x(), { showSpinner: r, dismissSpinner: s } = ge(), { loginWithAuthorizationCode: n } = A();
+  } = L(), { showMessage: t } = x(), { showSpinner: r, dismissSpinner: s } = fe(), { loginWithAuthorizationCode: n } = A();
   m(() => {
     Ce(
       e,
@@ -418,7 +425,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     t,
     o
   ]);
-}, we = () => (_e(), null), Ue = ({ appConfig: e, routes: o, children: t }) => /* @__PURE__ */ R(fe, { appConfig: e, children: [
+}, we = () => (_e(), null), Ue = ({ appConfig: e, routes: o, children: t }) => /* @__PURE__ */ R(ge, { appConfig: e, children: [
   /* @__PURE__ */ u(we, {}),
   /* @__PURE__ */ R($, { children: [
     t,
@@ -476,7 +483,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     userName: n,
     logoffAndShowMessage: a
   };
-}, Ge = (e) => {
+}, be = (e) => {
   const {
     appConfig: { appLogoUrl: o }
   } = L(), {
@@ -491,12 +498,12 @@ export {
   ye as makeAppConfig,
   ke as useAppBarState,
   L as useAppConfig,
-  Ge as useAppDrawerState,
+  be as useAppDrawerState,
   Pe as useDDB,
   Ne as useLambda,
   x as useMessage,
   Re as useMessageAreaState,
-  ge as useSpinner,
+  fe as useSpinner,
   De as useSpinnerAreaState,
   A as useUser
 };
