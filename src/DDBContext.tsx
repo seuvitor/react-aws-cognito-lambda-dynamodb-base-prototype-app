@@ -9,9 +9,7 @@ import type {
 	GetCommandInput,
 	GetCommandOutput,
 	PutCommandInput,
-	PutCommandOutput,
 	UpdateCommandInput,
-	UpdateCommandOutput,
 } from "@aws-sdk/lib-dynamodb";
 import {
 	createContext,
@@ -63,34 +61,34 @@ const DDBProvider = ({ children }: PropsWithChildren) => {
 const useDDB = <T,>() => {
 	const { documentDB } = useContext(DDBContext);
 
+	if (!documentDB) {
+		return {
+			documentDB: undefined,
+			ddbGet: undefined,
+			ddbPut: undefined,
+			ddbUpdate: undefined,
+		};
+	}
+
 	const ddbGet = useCallback(
 		(
 			params: GetCommandInput,
 		): Promise<Omit<GetCommandOutput, "Item"> & { Item?: T }> =>
 			documentDB
-				? documentDB
-						.send(new GetCommand(params))
-						.then(
-							(output) =>
-								output as Omit<GetCommandOutput, "Item"> & { Item?: T },
-						)
-				: Promise.reject<Omit<GetCommandOutput, "Item"> & { Item?: T }>(),
+				.send(new GetCommand(params))
+				.then(
+					(output) => output as Omit<GetCommandOutput, "Item"> & { Item?: T },
+				),
 		[documentDB],
 	);
 
 	const ddbPut = useCallback(
-		(params: PutCommandInput) =>
-			documentDB
-				? documentDB.send(new PutCommand(params))
-				: Promise.reject<PutCommandOutput>(),
+		(params: PutCommandInput) => documentDB.send(new PutCommand(params)),
 		[documentDB],
 	);
 
 	const ddbUpdate = useCallback(
-		(params: UpdateCommandInput) =>
-			documentDB
-				? documentDB.send(new UpdateCommand(params))
-				: Promise.reject<UpdateCommandOutput>(),
+		(params: UpdateCommandInput) => documentDB.send(new UpdateCommand(params)),
 		[documentDB],
 	);
 

@@ -12,11 +12,11 @@ import type { PropsWithChildren } from "react";
 import useUser from "./UserContext";
 
 type LambdaContextValue = {
-	invokeLambda: (functionName: string, payload: object) => Promise<object>;
+	invokeLambda?: (functionName: string, payload: object) => Promise<object>;
 };
 
 const LambdaContext = createContext<LambdaContextValue>({
-	invokeLambda: (_functionName, _payload) => Promise.reject(),
+	invokeLambda: undefined,
 });
 
 const LambdaProvider = ({ children }: PropsWithChildren) => {
@@ -46,56 +46,53 @@ const LambdaProvider = ({ children }: PropsWithChildren) => {
 		}
 	}, [awsCredentials]);
 
-	const invokeLambda = useCallback(
-		(functionName: string, payload: object) => {
-			if (lambda) {
-				const encoder = new TextEncoder();
-				const decoder = new TextDecoder();
-				const params: InvokeCommandInput = {
-					FunctionName: functionName,
-					ClientContext: btoa(JSON.stringify({ custom: { accessToken } })),
-					Payload: payload
-						? encoder.encode(JSON.stringify(payload))
-						: undefined,
-				};
-				const command = new InvokeCommand(params);
-				return new Promise<object>((resolve, reject) => {
-					lambda
-						.send(command)
-						.then((data) => {
-							if (
-								!data.StatusCode ||
-								data.StatusCode !== 200 ||
-								!data.Payload
-							) {
-								reject(data);
-							}
-							const responsePayload = JSON.parse(decoder.decode(data.Payload));
-							if (
-								!responsePayload ||
-								!responsePayload.statusCode ||
-								responsePayload.statusCode !== 200
-							) {
-								reject(data);
-							}
-							resolve(responsePayload.body);
-						})
-						.catch((err) => {
-							reject(err);
-						});
-				});
-			}
-			return Promise.reject("Lambda client is undefined");
-		},
-		[lambda, accessToken],
-	);
+	const invokeLambda = lambda
+		? useCallback(
+				(functionName: string, payload: object) => {
+					const encoder = new TextEncoder();
+					const decoder = new TextDecoder();
+					const params: InvokeCommandInput = {
+						FunctionName: functionName,
+						ClientContext: btoa(JSON.stringify({ custom: { accessToken } })),
+						Payload: payload
+							? encoder.encode(JSON.stringify(payload))
+							: undefined,
+					};
+					const command = new InvokeCommand(params);
+					return new Promise<object>((resolve, reject) => {
+						lambda
+							.send(command)
+							.then((data) => {
+								if (
+									!data.StatusCode ||
+									data.StatusCode !== 200 ||
+									!data.Payload
+								) {
+									reject(data);
+								}
+								const responsePayload = JSON.parse(
+									decoder.decode(data.Payload),
+								);
+								if (
+									!responsePayload ||
+									!responsePayload.statusCode ||
+									responsePayload.statusCode !== 200
+								) {
+									reject(data);
+								}
+								resolve(responsePayload.body);
+							})
+							.catch((err) => {
+								reject(err);
+							});
+					});
+				},
+				[lambda, accessToken],
+			)
+		: undefined;
 
 	return (
-		<LambdaContext.Provider
-			value={{
-				invokeLambda: lambda ? invokeLambda : () => Promise.reject(),
-			}}
-		>
+		<LambdaContext.Provider value={{ invokeLambda }}>
 			{children}
 		</LambdaContext.Provider>
 	);

@@ -90,7 +90,12 @@ export declare const useAppDrawerState: (routes: AppRoute[]) => {
 };
 
 export declare const useDDB: <T>() => {
-    documentDB: DynamoDBDocumentClient | undefined;
+    documentDB: undefined;
+    ddbGet: undefined;
+    ddbPut: undefined;
+    ddbUpdate: undefined;
+} | {
+    documentDB: DynamoDBDocumentClient;
     ddbGet: (params: GetCommandInput) => Promise<Omit<GetCommandOutput, "Item"> & {
         Item?: T;
     }>;
@@ -99,7 +104,7 @@ export declare const useDDB: <T>() => {
 };
 
 export declare const useLambda: () => {
-    invokeLambda: (functionName: string, payload: object) => Promise<object>;
+    invokeLambda: ((functionName: string, payload: object) => Promise<object>) | undefined;
 };
 
 export declare const useMessage: () => {
