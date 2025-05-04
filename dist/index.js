@@ -277,32 +277,27 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   }, [o]), m(() => {
     t && s((n) => (n && (n.config.credentials = t), n));
   }, [t]), /* @__PURE__ */ u(b.Provider, { value: { documentDB: r }, children: e });
-}, Ne = () => {
-  const { documentDB: e } = f(b);
-  if (!e)
-    return {
-      documentDB: void 0,
-      ddbGet: void 0,
-      ddbPut: void 0,
-      ddbUpdate: void 0
-    };
-  const o = h(
-    (s) => e.send(new W(s)).then(
-      (n) => n
-    ),
+}, Pe = () => {
+  const { documentDB: e } = f(b), o = h(
+    (s) => e ? e.send(new W(s)).then((n) => n) : Promise.reject(),
     [e]
   ), t = h(
-    (s) => e.send(new z(s)),
+    (s) => e ? e.send(new z(s)) : Promise.reject(),
     [e]
   ), r = h(
-    (s) => e.send(new J(s)),
+    (s) => e ? e.send(new J(s)) : Promise.reject(),
     [e]
   );
-  return {
+  return e ? {
     documentDB: e,
     ddbGet: o,
     ddbPut: t,
     ddbUpdate: r
+  } : {
+    documentDB: void 0,
+    ddbGet: void 0,
+    ddbPut: void 0,
+    ddbUpdate: void 0
   };
 }, F = w({
   invokeLambda: void 0
@@ -339,10 +334,10 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     [s, o]
   ) : void 0;
   return /* @__PURE__ */ u(F.Provider, { value: { invokeLambda: i }, children: e });
-}, Pe = () => {
+}, Ne = () => {
   const { invokeLambda: e } = f(F);
   return { invokeLambda: e };
-}, N = w({
+}, P = w({
   message: "",
   showMessage: (e) => {
   },
@@ -358,14 +353,14 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   }, []), i = h(() => {
     s(void 0);
   }, []);
-  return /* @__PURE__ */ u(N.Provider, { value: { message: r, showMessage: n, dismissMessage: i }, children: e });
+  return /* @__PURE__ */ u(P.Provider, { value: { message: r, showMessage: n, dismissMessage: i }, children: e });
 }, x = () => {
-  const { showMessage: e } = f(N);
+  const { showMessage: e } = f(P);
   return { showMessage: e };
 }, Re = () => {
-  const { message: e, dismissMessage: o } = f(N);
+  const { message: e, dismissMessage: o } = f(P);
   return { message: e, dismissMessage: o };
-}, P = w({
+}, N = w({
   showSpinner: () => {
   },
   dismissSpinner: () => {
@@ -377,12 +372,12 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   }, []), s = h(() => {
     t((i) => i - 1);
   }, []), n = o > 0;
-  return /* @__PURE__ */ u(P.Provider, { value: { showSpinner: r, dismissSpinner: s, showing: n }, children: e });
+  return /* @__PURE__ */ u(N.Provider, { value: { showSpinner: r, dismissSpinner: s, showing: n }, children: e });
 }, ge = () => {
-  const { showSpinner: e, dismissSpinner: o } = f(P);
+  const { showSpinner: e, dismissSpinner: o } = f(N);
   return { showSpinner: e, dismissSpinner: o };
 }, De = () => {
-  const { showing: e } = f(P);
+  const { showing: e } = f(N);
   return { showing: e };
 }, fe = ({
   appConfig: e,
@@ -497,8 +492,8 @@ export {
   ke as useAppBarState,
   L as useAppConfig,
   Ge as useAppDrawerState,
-  Ne as useDDB,
-  Pe as useLambda,
+  Pe as useDDB,
+  Ne as useLambda,
   x as useMessage,
   Re as useMessageAreaState,
   ge as useSpinner,

@@ -55,6 +55,10 @@ declare type BaseAppScopeProps = PropsWithChildren<{
     routes: AppRoute[];
 }>;
 
+declare type DDBGetCommandOutput<T> = Omit<GetCommandOutput, "Item"> & {
+    Item?: T;
+};
+
 export declare const makeAppConfig: ({ appHost, appBasePath, appRegion, appUserPoolId, appUserPoolDomain, appClientId, appIdentityPoolId, appRefreshTokenStorageKey, appLogoUrl, appMessages, hideLogin, }: MakeAppConfigParam) => AppConfig;
 
 declare type MakeAppConfigParam = {
@@ -89,18 +93,13 @@ export declare const useAppDrawerState: (routes: AppRoute[]) => {
     menuRoutes: AppRoute[];
 };
 
-export declare const useDDB: <T>() => {
-    documentDB: undefined;
-    ddbGet: undefined;
-    ddbPut: undefined;
-    ddbUpdate: undefined;
-} | {
-    documentDB: DynamoDBDocumentClient;
-    ddbGet: (params: GetCommandInput) => Promise<Omit<GetCommandOutput, "Item"> & {
-        Item?: T;
-    }>;
-    ddbPut: (params: PutCommandInput) => Promise<PutCommandOutput>;
-    ddbUpdate: (params: UpdateCommandInput) => Promise<UpdateCommandOutput>;
+export declare const useDDB: <T>() => UseDDBReturnType<T>;
+
+declare type UseDDBReturnType<T> = {
+    documentDB: DynamoDBDocumentClient | undefined;
+    ddbGet?: (params: GetCommandInput) => Promise<DDBGetCommandOutput<T>>;
+    ddbPut?: (params: PutCommandInput) => Promise<PutCommandOutput>;
+    ddbUpdate?: (params: UpdateCommandInput) => Promise<UpdateCommandOutput>;
 };
 
 export declare const useLambda: () => {

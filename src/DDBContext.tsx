@@ -9,7 +9,9 @@ import type {
 	GetCommandInput,
 	GetCommandOutput,
 	PutCommandInput,
+	PutCommandOutput,
 	UpdateCommandInput,
+	UpdateCommandOutput,
 } from "@aws-sdk/lib-dynamodb";
 import {
 	createContext,
@@ -58,8 +60,45 @@ const DDBProvider = ({ children }: PropsWithChildren) => {
 	);
 };
 
-const useDDB = <T,>() => {
+type DDBGetCommandOutput<T> = Omit<GetCommandOutput, "Item"> & {
+	Item?: T;
+};
+
+type UseDDBReturnType<T> = {
+	documentDB: DynamoDBDocumentClient | undefined;
+	ddbGet?: (params: GetCommandInput) => Promise<DDBGetCommandOutput<T>>;
+	ddbPut?: (params: PutCommandInput) => Promise<PutCommandOutput>;
+	ddbUpdate?: (params: UpdateCommandInput) => Promise<UpdateCommandOutput>;
+};
+
+const useDDB = <T,>(): UseDDBReturnType<T> => {
 	const { documentDB } = useContext(DDBContext);
+
+	const ddbGet = useCallback(
+		(params: GetCommandInput) =>
+			documentDB
+				? documentDB
+						.send(new GetCommand(params))
+						.then((output) => output as DDBGetCommandOutput<T>)
+				: Promise.reject<DDBGetCommandOutput<T>>(),
+		[documentDB],
+	);
+
+	const ddbPut = useCallback(
+		(params: PutCommandInput) =>
+			documentDB
+				? documentDB.send(new PutCommand(params))
+				: Promise.reject<PutCommandOutput>(),
+		[documentDB],
+	);
+
+	const ddbUpdate = useCallback(
+		(params: UpdateCommandInput) =>
+			documentDB
+				? documentDB.send(new UpdateCommand(params))
+				: Promise.reject<UpdateCommandOutput>(),
+		[documentDB],
+	);
 
 	if (!documentDB) {
 		return {
@@ -69,28 +108,6 @@ const useDDB = <T,>() => {
 			ddbUpdate: undefined,
 		};
 	}
-
-	const ddbGet = useCallback(
-		(
-			params: GetCommandInput,
-		): Promise<Omit<GetCommandOutput, "Item"> & { Item?: T }> =>
-			documentDB
-				.send(new GetCommand(params))
-				.then(
-					(output) => output as Omit<GetCommandOutput, "Item"> & { Item?: T },
-				),
-		[documentDB],
-	);
-
-	const ddbPut = useCallback(
-		(params: PutCommandInput) => documentDB.send(new PutCommand(params)),
-		[documentDB],
-	);
-
-	const ddbUpdate = useCallback(
-		(params: UpdateCommandInput) => documentDB.send(new UpdateCommand(params)),
-		[documentDB],
-	);
 
 	return {
 		documentDB,
