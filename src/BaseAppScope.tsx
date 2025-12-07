@@ -1,8 +1,7 @@
-import type { JSX, PropsWithChildren } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
-
-import InfrastructureProvider from "./InfrastructureProvider";
 import type { AppConfig } from "./core/makeAppConfig";
+import InfrastructureProvider from "./InfrastructureProvider";
 import useAuthRedirect from "./useAuthRedirect";
 
 const RedirectAuthCode = () => {
@@ -15,7 +14,7 @@ type AppRoute = {
 	label: string;
 	path: string;
 	hideFromMenu: boolean;
-	component: () => JSX.Element;
+	component: () => ReactNode;
 	authorizedGroups?: string[];
 };
 

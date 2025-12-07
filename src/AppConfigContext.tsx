@@ -1,5 +1,5 @@
-import { createContext, useContext } from "react";
 import type { PropsWithChildren } from "react";
+import { createContext, useContext } from "react";
 import type { AppConfig } from "./core/makeAppConfig";
 
 type AppConfigContextValue =

@@ -1,5 +1,4 @@
 import { useLocation } from "react-router-dom";
-
 import useAppConfig from "./AppConfigContext";
 import type { AppRoute } from "./BaseAppScope";
 import useMessage from "./MessageContext";

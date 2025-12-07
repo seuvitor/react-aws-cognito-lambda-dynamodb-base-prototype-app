@@ -6,15 +6,15 @@ import { GetCommand as W, PutCommand as z, UpdateCommand as j, DynamoDBDocumentC
 import { CognitoIdentityClient as V } from "@aws-sdk/client-cognito-identity";
 import { fromCognitoIdentityPool as q } from "@aws-sdk/credential-provider-cognito-identity";
 import { LambdaClient as Q, InvokeCommand as X } from "@aws-sdk/client-lambda";
-const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.Provider, { value: { appConfig: e }, children: o }), L = () => {
-  const e = g(D);
+const y = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(y.Provider, { value: { appConfig: e }, children: o }), E = () => {
+  const e = g(y);
   if (e === void 0)
     throw new Error(
       "useAppConfig can only be used in the scope of a AppConfigProvider"
     );
   const { appConfig: o } = e;
   return { appConfig: o };
-}, E = {
+}, T = {
   appConfig: void 0,
   user: {
     identityId: void 0,
@@ -28,7 +28,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   refreshToken: void 0,
   awsConfig: void 0,
   awsCredentials: void 0
-}, Z = (e) => sessionStorage.getItem(e), I = (e, o) => {
+}, Z = (e) => sessionStorage.getItem(e), P = (e, o) => {
   e ? sessionStorage.setItem(o, e) : sessionStorage.removeItem(o);
 }, ee = {
   awsCredentials: void 0,
@@ -42,30 +42,30 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     accessToken: void 0
   },
   awsConfig: void 0
-}, T = {
+}, L = {
   ...ee,
   refreshToken: void 0
-}, oe = (e, o, t, r, s, n) => {
-  const i = t && JSON.parse(atob(t.split(".")[1])), c = {
+}, oe = (e, o, t, i, s, n) => {
+  const r = t && JSON.parse(atob(t.split(".")[1])), c = {
     identityId: o,
-    id: i == null ? void 0 : i.sub,
-    name: i ? i.name : s.LOGGED_OUT_USER,
-    email: i == null ? void 0 : i.email,
-    groups: i == null ? void 0 : i["cognito:groups"],
+    id: r?.sub,
+    name: r ? r.name : s.LOGGED_OUT_USER,
+    email: r?.email,
+    groups: r?.["cognito:groups"],
     idToken: t,
-    accessToken: r
+    accessToken: i
   };
   return {
     awsCredentials: e,
     user: c,
     awsConfig: e ? { region: n, credentials: e } : void 0
   };
-}, U = (e, o, t) => {
-  const { appIdentityPoolId: r, appRegion: s, appUserPoolId: n, appMessages: i } = e, c = q({
+}, D = (e, o, t) => {
+  const { appIdentityPoolId: i, appRegion: s, appUserPoolId: n, appMessages: r } = e, c = q({
     client: new V({
       region: s
     }),
-    identityPoolId: r,
+    identityPoolId: i,
     ...o && { logins: { [n]: o } }
   });
   return new Promise((a, d) => {
@@ -76,7 +76,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
           l.identityId,
           o,
           t,
-          i,
+          r,
           s
         )
       );
@@ -84,16 +84,16 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
       d(l);
     });
   });
-}, y = (e, o) => {
-  const { appAuthUrl: t, appClientId: r, appMessages: s } = e;
-  return new Promise((n, i) => {
+}, k = (e, o) => {
+  const { appAuthUrl: t, appClientId: i, appMessages: s } = e;
+  return new Promise((n, r) => {
     o ? fetch(t, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `grant_type=refresh_token&client_id=${r}&refresh_token=${o}`
+      body: `grant_type=refresh_token&client_id=${i}&refresh_token=${o}`
     }).then((c) => {
       c.json().then((a) => {
-        U(
+        D(
           e,
           a.id_token,
           a.access_token
@@ -103,29 +103,29 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
           console.error(
             s.LOG_COULD_NOT_LOGIN_WITH_REFRESHED_TOKENS,
             d
-          ), i(d);
+          ), r(d);
         });
       }).catch((a) => {
         console.error(
           s.LOG_COULD_NOT_DECODE_AUTHENTICATION_RESPONSE,
           a
-        ), i(a);
+        ), r(a);
       });
     }).catch((c) => {
-      console.error(s.LOG_COULD_NOT_GET_REFRESHED_TOKENS, c), i(c);
-    }) : (console.warn(s.LOG_NO_REFRESH_TOKEN_AVAILABLE), i(Error(s.LOG_NO_REFRESH_TOKEN_AVAILABLE)));
+      console.error(s.LOG_COULD_NOT_GET_REFRESHED_TOKENS, c), r(c);
+    }) : (console.warn(s.LOG_NO_REFRESH_TOKEN_AVAILABLE), r(Error(s.LOG_NO_REFRESH_TOKEN_AVAILABLE)));
   });
 }, ne = (e, o) => {
-  const { appAuthUrl: t, appClientId: r, appAuthRedirect: s, appMessages: n } = e;
-  return new Promise((i, c) => {
+  const { appAuthUrl: t, appClientId: i, appAuthRedirect: s, appMessages: n } = e;
+  return new Promise((r, c) => {
     fetch(t, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `grant_type=authorization_code&client_id=${r}&code=${o}&redirect_uri=${s}`
+      body: `grant_type=authorization_code&client_id=${i}&code=${o}&redirect_uri=${s}`
     }).then((a) => {
       a.json().then((d) => {
-        y(e, d.refresh_token).then((l) => {
-          i({
+        k(e, d.refresh_token).then((l) => {
+          r({
             ...l,
             refreshToken: d.refresh_token
           });
@@ -145,45 +145,45 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
       console.error(n.LOG_COULD_NOT_GET_IDENTIFICATION_TOKENS, a), c(a);
     });
   });
-}, te = (e, o) => new Promise((t, r) => {
-  I(
+}, te = (e, o) => new Promise((t, i) => {
+  P(
     void 0,
     o.appRefreshTokenStorageKey
-  ), e((s) => T), t();
+  ), e((s) => L), t();
 }), se = (e, o) => {
   const t = Z(
     o.appRefreshTokenStorageKey
   );
-  t && k(e, o, t);
-}, re = (e, o, t, r) => {
-  U(o, t, r).then((s) => {
+  t && U(e, o, t);
+}, ie = (e, o, t, i) => {
+  D(o, t, i).then((s) => {
     e((n) => ({ ...n, stateUpdate: s }));
   }).catch(() => {
-    e((s) => T);
+    e((s) => L);
   });
-}, k = (e, o, t) => new Promise((r, s) => {
-  y(o, t).then((n) => {
-    e((i) => ({ ...i, ...n })), r();
+}, U = (e, o, t) => new Promise((i, s) => {
+  k(o, t).then((n) => {
+    e((r) => ({ ...r, ...n })), i();
   }).catch((n) => {
-    e((i) => T), s(n);
+    e((r) => L), s(n);
   });
-}), ie = (e, o, t) => new Promise((r, s) => {
+}), re = (e, o, t) => new Promise((i, s) => {
   ne(o, t).then((n) => {
-    const { refreshToken: i } = n;
-    I(
-      i,
+    const { refreshToken: r } = n;
+    P(
+      r,
       o.appRefreshTokenStorageKey
-    ), e((c) => n), r();
+    ), e((c) => n), i();
   }).catch((n) => {
-    I(
+    P(
       void 0,
       o.appRefreshTokenStorageKey
-    ), e((c) => T), s(n);
+    ), e((c) => L), s(n);
   });
 }), ce = {
-  user: E.user,
-  awsConfig: E.awsConfig,
-  awsCredentials: E.awsCredentials,
+  user: T.user,
+  awsConfig: T.awsConfig,
+  awsCredentials: T.awsCredentials,
   loginAnonymously: () => {
   },
   loginWithAuthorizationCode: () => Promise.reject(),
@@ -194,15 +194,15 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     return () => clearInterval(t);
   }, [e, o]);
 }, de = 25 * 6e4, ue = ({ children: e }) => {
-  const { appConfig: o } = L(), { appMessages: t } = o, [r, s] = _(E);
+  const { appConfig: o } = E(), { appMessages: t } = o, [i, s] = _(T);
   m(() => {
     se(s, o);
   }, [o]);
   const n = h(
     () => te(s, o),
     [o]
-  ), i = h(
-    (p, C) => re(
+  ), r = h(
+    (p, C) => ie(
       s,
       o,
       p,
@@ -210,12 +210,12 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     ),
     [o]
   ), c = h(
-    () => k(
+    () => U(
       s,
       o,
-      r.refreshToken
+      i.refreshToken
     ),
-    [o, r.refreshToken]
+    [o, i.refreshToken]
   ), a = h(() => {
     c().catch(() => {
       console.warn(t.LOG_COULD_NOT_REFRESH_TOKENS);
@@ -223,23 +223,23 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   }, [c, t]);
   ae(a, de);
   const d = h(
-    () => i(void 0, void 0),
-    [i]
+    () => r(void 0, void 0),
+    [r]
   ), l = h(
-    (p) => ie(s, o, p),
+    (p) => re(s, o, p),
     [o]
   );
   return m(() => {
-    r.awsCredentials || c().catch(() => {
+    i.awsCredentials || c().catch(() => {
       console.warn(t.LOG_COULD_NOT_REFRESH_TOKENS);
     });
-  }, [r.awsCredentials, c, t]), /* @__PURE__ */ u(
+  }, [i.awsCredentials, c, t]), /* @__PURE__ */ u(
     b.Provider,
     {
       value: {
-        user: r.user,
-        awsConfig: r.awsConfig,
-        awsCredentials: r.awsCredentials,
+        user: i.user,
+        awsConfig: i.awsConfig,
+        awsCredentials: i.awsCredentials,
         loginAnonymously: d,
         loginWithAuthorizationCode: l,
         logoff: n
@@ -252,7 +252,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     user: e,
     awsConfig: o,
     awsCredentials: t,
-    loginAnonymously: r,
+    loginAnonymously: i,
     loginWithAuthorizationCode: s,
     logoff: n
   } = g(b);
@@ -260,14 +260,14 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     user: e,
     awsConfig: o,
     awsCredentials: t,
-    loginAnonymously: r,
+    loginAnonymously: i,
     loginWithAuthorizationCode: s,
     logoff: n
   };
 }, G = w({
   documentDB: void 0
 }), le = ({ children: e }) => {
-  const { awsConfig: o, awsCredentials: t } = A(), [r, s] = _();
+  const { awsConfig: o, awsCredentials: t } = A(), [i, s] = _();
   return m(() => {
     if (o) {
       const n = new K(o);
@@ -276,15 +276,15 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
       s(void 0);
   }, [o]), m(() => {
     t && s((n) => (n && (n.config.credentials = t), n));
-  }, [t]), /* @__PURE__ */ u(G.Provider, { value: { documentDB: r }, children: e });
-}, Pe = () => {
+  }, [t]), /* @__PURE__ */ u(G.Provider, { value: { documentDB: i }, children: e });
+}, Ie = () => {
   const { documentDB: e } = g(G), o = h(
     (s) => e ? e.send(new W(s)).then((n) => n) : Promise.reject(),
     [e]
   ), t = h(
     (s) => e ? e.send(new z(s)) : Promise.reject(),
     [e]
-  ), r = h(
+  ), i = h(
     (s) => e ? e.send(new j(s)) : Promise.reject(),
     [e]
   );
@@ -292,7 +292,7 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     documentDB: e,
     ddbGet: o,
     ddbPut: t,
-    ddbUpdate: r
+    ddbUpdate: i
   } : {
     documentDB: void 0,
     ddbGet: void 0,
@@ -305,14 +305,14 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   const {
     user: { accessToken: o },
     awsConfig: t,
-    awsCredentials: r
+    awsCredentials: i
   } = A(), [s, n] = _();
   m(() => {
     n(t ? new Q(t) : void 0);
   }, [t]), m(() => {
-    r && n((c) => (c && (c.config.credentials = r), c));
-  }, [r]);
-  const i = h(
+    i && n((c) => (c && (c.config.credentials = i), c));
+  }, [i]);
+  const r = h(
     (c, a) => {
       if (s) {
         const d = new TextEncoder(), l = new TextDecoder(), p = {
@@ -337,35 +337,35 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   return /* @__PURE__ */ u(
     F.Provider,
     {
-      value: { invokeLambda: s ? i : void 0 },
+      value: { invokeLambda: s ? r : void 0 },
       children: e
     }
   );
 }, Ne = () => {
   const { invokeLambda: e } = g(F);
   return { invokeLambda: e };
-}, P = w({
+}, I = w({
   message: "",
   showMessage: (e) => {
   },
   dismissMessage: () => {
   }
 }), pe = ({ children: e }) => {
-  const [o, t] = _([]), [r, s] = _();
+  const [o, t] = _([]), [i, s] = _();
   m(() => {
-    o.length && !r && (s(o[0]), t((c) => c.slice(1)));
-  }, [o, r]);
+    o.length && !i && (s(o[0]), t((c) => c.slice(1)));
+  }, [o, i]);
   const n = h((c) => {
     t((a) => [...a, c]);
-  }, []), i = h(() => {
+  }, []), r = h(() => {
     s(void 0);
   }, []);
-  return /* @__PURE__ */ u(P.Provider, { value: { message: r, showMessage: n, dismissMessage: i }, children: e });
+  return /* @__PURE__ */ u(I.Provider, { value: { message: i, showMessage: n, dismissMessage: r }, children: e });
 }, x = () => {
-  const { showMessage: e } = g(P);
+  const { showMessage: e } = g(I);
   return { showMessage: e };
 }, Re = () => {
-  const { message: e, dismissMessage: o } = g(P);
+  const { message: e, dismissMessage: o } = g(I);
   return { message: e, dismissMessage: o };
 }, N = w({
   showSpinner: () => {
@@ -374,28 +374,28 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   },
   showing: !1
 }), me = ({ children: e }) => {
-  const [o, t] = _(0), r = h(() => {
-    t((i) => i + 1);
+  const [o, t] = _(0), i = h(() => {
+    t((r) => r + 1);
   }, []), s = h(() => {
-    t((i) => i - 1);
+    t((r) => r - 1);
   }, []), n = o > 0;
-  return /* @__PURE__ */ u(N.Provider, { value: { showSpinner: r, dismissSpinner: s, showing: n }, children: e });
+  return /* @__PURE__ */ u(N.Provider, { value: { showSpinner: i, dismissSpinner: s, showing: n }, children: e });
 }, fe = () => {
   const { showSpinner: e, dismissSpinner: o } = g(N);
   return { showSpinner: e, dismissSpinner: o };
-}, De = () => {
+}, ye = () => {
   const { showing: e } = g(N);
   return { showing: e };
 }, ge = ({
   appConfig: e,
   children: o
-}) => /* @__PURE__ */ u(pe, { children: /* @__PURE__ */ u(me, { children: /* @__PURE__ */ u(Y, { appConfig: e, children: /* @__PURE__ */ u(ue, { children: /* @__PURE__ */ u(le, { children: /* @__PURE__ */ u(he, { children: o }) }) }) }) }) }), Ce = (e, o, t, r, s, n) => {
+}) => /* @__PURE__ */ u(pe, { children: /* @__PURE__ */ u(me, { children: /* @__PURE__ */ u(Y, { appConfig: e, children: /* @__PURE__ */ u(ue, { children: /* @__PURE__ */ u(le, { children: /* @__PURE__ */ u(he, { children: o }) }) }) }) }) }), Ce = (e, o, t, i, s, n) => {
   if (window.location.pathname === e) {
-    const i = new URLSearchParams(window.location.search);
-    if (i.get("auth-redirect") !== null && i.get("code") !== null) {
+    const r = new URLSearchParams(window.location.search);
+    if (r.get("auth-redirect") !== null && r.get("code") !== null) {
       window.history.replaceState({}, "", window.location.pathname);
-      const c = i.get("code");
-      c && (o(), r(c).then(() => {
+      const c = r.get("code");
+      c && (o(), i(c).then(() => {
         n && s(n.LOGIN_SUCCESSFUL);
       }).catch(() => {
         n && s(n.LOGIN_FAILED);
@@ -407,11 +407,11 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
 }, _e = () => {
   const {
     appConfig: { appBasePath: e, appMessages: o }
-  } = L(), { showMessage: t } = x(), { showSpinner: r, dismissSpinner: s } = fe(), { loginWithAuthorizationCode: n } = A();
+  } = E(), { showMessage: t } = x(), { showSpinner: i, dismissSpinner: s } = fe(), { loginWithAuthorizationCode: n } = A();
   m(() => {
     Ce(
       e,
-      r,
+      i,
       s,
       n,
       t,
@@ -419,33 +419,33 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     );
   }, [
     e,
-    r,
+    i,
     s,
     n,
     t,
     o
   ]);
-}, we = () => (_e(), null), Ue = ({ appConfig: e, routes: o, children: t }) => /* @__PURE__ */ R(ge, { appConfig: e, children: [
+}, we = () => (_e(), null), De = ({ appConfig: e, routes: o, children: t }) => /* @__PURE__ */ R(ge, { appConfig: e, children: [
   /* @__PURE__ */ u(we, {}),
   /* @__PURE__ */ R($, { children: [
     t,
-    /* @__PURE__ */ u(B, { children: o.map((r) => /* @__PURE__ */ u(
+    /* @__PURE__ */ u(B, { children: o.map((i) => /* @__PURE__ */ u(
       M,
       {
-        path: r.path,
-        element: /* @__PURE__ */ u(r.component, {})
+        path: i.path,
+        element: /* @__PURE__ */ u(i.component, {})
       },
-      `${r.name}-route`
+      `${i.name}-route`
     )) })
   ] })
-] }), ye = ({
+] }), ke = ({
   appHost: e,
   appBasePath: o,
   appRegion: t,
-  appUserPoolId: r,
+  appUserPoolId: i,
   appUserPoolDomain: s,
   appClientId: n,
-  appIdentityPoolId: i,
+  appIdentityPoolId: r,
   appRefreshTokenStorageKey: c,
   appLogoUrl: a,
   appMessages: d,
@@ -455,9 +455,9 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
   return {
     appBasePath: o,
     appRegion: t,
-    appUserPoolId: r,
+    appUserPoolId: i,
     appClientId: n,
-    appIdentityPoolId: i,
+    appIdentityPoolId: r,
     appAuthRedirect: C,
     appAuthUrl: S,
     appExternalLoginUrl: v,
@@ -466,19 +466,19 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
     appMessages: d,
     hideLogin: l || !1
   };
-}, ke = (e) => {
+}, Ue = (e) => {
   const {
-    appConfig: { appMessages: o, hideLogin: t, appExternalLoginUrl: r }
-  } = L(), { showMessage: s } = x(), {
+    appConfig: { appMessages: o, hideLogin: t, appExternalLoginUrl: i }
+  } = E(), { showMessage: s } = x(), {
     user: { name: n },
-    logoff: i
+    logoff: r
   } = A(), c = H(), a = () => {
-    i().then(() => s(o.LOGOUT_SUCCESSFUL)).catch(() => s(o.LOGOUT_FAILED));
+    r().then(() => s(o.LOGOUT_SUCCESSFUL)).catch(() => s(o.LOGOUT_FAILED));
   }, d = e.find((S) => S.path === c.pathname);
   return {
     currentRouteLabel: d ? d.label : "",
     hideLoginButton: !!n || t,
-    appExternalLoginUrl: r,
+    appExternalLoginUrl: i,
     hideAccountButton: !n || t,
     userName: n,
     logoffAndShowMessage: a
@@ -486,25 +486,25 @@ const D = w(void 0), Y = ({ appConfig: e, children: o }) => /* @__PURE__ */ u(D.
 }, be = (e) => {
   const {
     appConfig: { appLogoUrl: o }
-  } = L(), {
+  } = E(), {
     user: { groups: t }
-  } = A(), r = (n) => n ? t ? n.some(
-    (i) => t.includes(i)
-  ) : !1 : !0, s = e.filter((n) => !n.hideFromMenu).filter((n) => r(n.authorizedGroups));
+  } = A(), i = (n) => n ? t ? n.some(
+    (r) => t.includes(r)
+  ) : !1 : !0, s = e.filter((n) => !n.hideFromMenu).filter((n) => i(n.authorizedGroups));
   return { appLogoUrl: o, menuRoutes: s };
 };
 export {
-  Ue as BaseAppScope,
-  ye as makeAppConfig,
-  ke as useAppBarState,
-  L as useAppConfig,
+  De as BaseAppScope,
+  ke as makeAppConfig,
+  Ue as useAppBarState,
+  E as useAppConfig,
   be as useAppDrawerState,
-  Pe as useDDB,
+  Ie as useDDB,
   Ne as useLambda,
   x as useMessage,
   Re as useMessageAreaState,
   fe as useSpinner,
-  De as useSpinnerAreaState,
+  ye as useSpinnerAreaState,
   A as useUser
 };
 //# sourceMappingURL=index.js.map

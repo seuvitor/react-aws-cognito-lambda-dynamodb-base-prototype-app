@@ -1,8 +1,13 @@
-import React from "react";
-
+import type { AppRoute } from "../../src";
 import { useAppBarState } from "../../src";
 
-const AppBar = ({ drawerOpen, setDrawerOpen, routes }) => {
+type AppBarProps = {
+	drawerOpen: boolean;
+	setDrawerOpen: (open: boolean) => void;
+	routes: AppRoute[];
+};
+
+const AppBar = ({ drawerOpen, setDrawerOpen, routes }: AppBarProps) => {
 	const {
 		currentRouteLabel,
 		hideLoginButton,

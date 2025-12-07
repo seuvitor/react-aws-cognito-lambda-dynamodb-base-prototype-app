@@ -1,3 +1,5 @@
+import type { CognitoIdentityCredentialProvider } from "@aws-sdk/credential-provider-cognito-identity";
+import type { PropsWithChildren } from "react";
 import {
 	createContext,
 	useCallback,
@@ -5,7 +7,8 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import type { PropsWithChildren } from "react";
+import useAppConfig from "./AppConfigContext";
+import type { LoginState } from "./core/authentication";
 import {
 	loginWithAuthorizationCode as _loginWithAuthorizationCode,
 	loginWithAwsCognitoIdentityPool as _loginWithAwsCognitoIdentityPool,
@@ -14,10 +17,6 @@ import {
 	setAppConfig as _setAppConfig,
 	initialUserState,
 } from "./core/authentication";
-import type { LoginState } from "./core/authentication";
-
-import type { CognitoIdentityCredentialProvider } from "@aws-sdk/credential-provider-cognito-identity";
-import useAppConfig from "./AppConfigContext";
 
 type UserContextValue = {
 	awsCredentials: undefined | CognitoIdentityCredentialProvider;

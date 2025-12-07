@@ -2,11 +2,11 @@ import { CognitoIdentityCredentialProvider } from '@aws-sdk/credential-provider-
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { GetCommandInput } from '@aws-sdk/lib-dynamodb';
 import { GetCommandOutput } from '@aws-sdk/lib-dynamodb';
-import { JSX } from 'react';
-import { JSX as JSX_2 } from 'react/jsx-runtime';
+import { JSX } from 'react/jsx-runtime';
 import { PropsWithChildren } from 'react';
 import { PutCommandInput } from '@aws-sdk/lib-dynamodb';
 import { PutCommandOutput } from '@aws-sdk/lib-dynamodb';
+import { ReactNode } from 'react';
 import { UpdateCommandInput } from '@aws-sdk/lib-dynamodb';
 import { UpdateCommandOutput } from '@aws-sdk/lib-dynamodb';
 
@@ -44,11 +44,11 @@ export declare type AppRoute = {
     label: string;
     path: string;
     hideFromMenu: boolean;
-    component: () => JSX.Element;
+    component: () => ReactNode;
     authorizedGroups?: string[];
 };
 
-export declare const BaseAppScope: ({ appConfig, routes, children }: BaseAppScopeProps) => JSX_2.Element;
+export declare const BaseAppScope: ({ appConfig, routes, children }: BaseAppScopeProps) => JSX.Element;
 
 declare type BaseAppScopeProps = PropsWithChildren<{
     appConfig: AppConfig;

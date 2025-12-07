@@ -1,5 +1,3 @@
-import React from "react";
-
 import { useSpinnerAreaState } from "../../src";
 
 const SpinnerArea = () => {

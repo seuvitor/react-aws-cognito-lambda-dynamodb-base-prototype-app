@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import useAppConfig from "./AppConfigContext";
+import authRedirect from "./core/authRedirect";
 import useMessage from "./MessageContext";
 import useSpinner from "./SpinnerContext";
 import useUser from "./UserContext";
-import authRedirect from "./core/authRedirect";
 
 const useAuthRedirect = () => {
 	const {

@@ -1,3 +1,4 @@
+import type { PropsWithChildren } from "react";
 import {
 	createContext,
 	useCallback,
@@ -5,7 +6,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import type { PropsWithChildren } from "react";
+
 type MessageContextValue = {
 	message: string | undefined;
 	showMessage: (message: string) => void;

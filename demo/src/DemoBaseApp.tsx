@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-
+import { useState } from "react";
 import { BaseAppScope } from "../../src";
 import type { AppRoute } from "../../src/BaseAppScope";
 import type { AppConfig } from "../../src/core/makeAppConfig";

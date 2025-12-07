@@ -1,9 +1,14 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
-
+import type { AppRoute } from "../../src";
 import { useAppDrawerState } from "../../src";
 
-const AppDrawer = ({ routes, drawerOpen, setDrawerOpen }) => {
+type AppDrawerProps = {
+	routes: AppRoute[];
+	drawerOpen: boolean;
+	setDrawerOpen: (open: boolean) => void;
+};
+
+const AppDrawer = ({ routes, drawerOpen, setDrawerOpen }: AppDrawerProps) => {
 	const { appLogoUrl, menuRoutes } = useAppDrawerState(routes);
 
 	const handleClose = () => setDrawerOpen(false);

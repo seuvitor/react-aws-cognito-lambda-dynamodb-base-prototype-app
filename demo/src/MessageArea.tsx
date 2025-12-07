@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-
+import { useEffect } from "react";
 import { useMessageAreaState } from "../../src";
 
 const MessageArea = () => {
