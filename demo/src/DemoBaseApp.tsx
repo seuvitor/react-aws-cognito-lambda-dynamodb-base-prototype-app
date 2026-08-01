@@ -8,29 +8,21 @@ import MessageArea from "./MessageArea";
 import SpinnerArea from "./SpinnerArea";
 
 type DemoBaseAppProps = {
-	appConfig: AppConfig;
-	routes: AppRoute[];
+  appConfig: AppConfig;
+  routes: AppRoute[];
 };
 
 const DemoBaseApp = ({ appConfig, routes }: DemoBaseAppProps) => {
-	const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-	return (
-		<BaseAppScope appConfig={appConfig} routes={routes}>
-			<AppBar
-				drawerOpen={drawerOpen}
-				setDrawerOpen={setDrawerOpen}
-				routes={routes}
-			/>
-			<AppDrawer
-				routes={routes}
-				drawerOpen={drawerOpen}
-				setDrawerOpen={setDrawerOpen}
-			/>
-			<MessageArea />
-			<SpinnerArea />
-		</BaseAppScope>
-	);
+  return (
+    <BaseAppScope appConfig={appConfig} routes={routes}>
+      <AppBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} routes={routes} />
+      <AppDrawer routes={routes} drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
+      <MessageArea />
+      <SpinnerArea />
+    </BaseAppScope>
+  );
 };
 
 export default DemoBaseApp;

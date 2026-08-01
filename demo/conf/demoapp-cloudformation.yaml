@@ -66,7 +66,6 @@
 # }
 
 Resources:
-
   DemoAppUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -95,10 +94,9 @@ Resources:
   DemoAppUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
-      Domain:
-        !Sub
-          - 'demoapp-${RandomGUID}'
-          - { RandomGUID: !Select [0, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId ]]]] }
+      Domain: !Sub
+        - "demoapp-${RandomGUID}"
+        - { RandomGUID: !Select [0, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId]]]] }
       UserPoolId: !Ref DemoAppUserPool
 
   DemoAppUserPoolClient:
@@ -151,7 +149,7 @@ Resources:
           - Effect: Allow
             Principal:
               Federated: cognito-identity.amazonaws.com
-            Action: 'sts:AssumeRoleWithWebIdentity'
+            Action: "sts:AssumeRoleWithWebIdentity"
             Condition:
               StringEquals:
                 "cognito-identity.amazonaws.com:aud": !Ref DemoAppIdentityPool
@@ -167,7 +165,7 @@ Resources:
                   - "mobileanalytics:PutEvents"
                   - "cognito-sync:*"
                   - "cognito-identity:*"
-                Resource: '*'
+                Resource: "*"
       RoleName: Cognito_demoappAuth_Role
 
   DemoAppUnauthRole:
@@ -179,7 +177,7 @@ Resources:
           - Effect: Allow
             Principal:
               Federated: cognito-identity.amazonaws.com
-            Action: 'sts:AssumeRoleWithWebIdentity'
+            Action: "sts:AssumeRoleWithWebIdentity"
             Condition:
               StringEquals:
                 "cognito-identity.amazonaws.com:aud": !Ref DemoAppIdentityPool
@@ -194,12 +192,10 @@ Resources:
                 Action:
                   - "mobileanalytics:PutEvents"
                   - "cognito-sync:*"
-                Resource: '*'
+                Resource: "*"
       RoleName: Cognito_demoappUnauth_Role
 
-
 Outputs:
-
   UserPoolId:
     Value: !GetAtt DemoAppUserPool.ProviderName
     Export:

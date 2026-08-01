@@ -8,24 +8,21 @@ import { SpinnerProvider } from "./SpinnerContext";
 import { UserProvider } from "./UserContext";
 
 type InfrastructureProviderProps = PropsWithChildren<{
-	appConfig: AppConfig;
+  appConfig: AppConfig;
 }>;
 
-const InfrastructureProvider = ({
-	appConfig,
-	children,
-}: InfrastructureProviderProps) => (
-	<MessageProvider>
-		<SpinnerProvider>
-			<AppConfigProvider appConfig={appConfig}>
-				<UserProvider>
-					<DDBProvider>
-						<LambdaProvider>{children}</LambdaProvider>
-					</DDBProvider>
-				</UserProvider>
-			</AppConfigProvider>
-		</SpinnerProvider>
-	</MessageProvider>
+const InfrastructureProvider = ({ appConfig, children }: InfrastructureProviderProps) => (
+  <MessageProvider>
+    <SpinnerProvider>
+      <AppConfigProvider appConfig={appConfig}>
+        <UserProvider>
+          <DDBProvider>
+            <LambdaProvider>{children}</LambdaProvider>
+          </DDBProvider>
+        </UserProvider>
+      </AppConfigProvider>
+    </SpinnerProvider>
+  </MessageProvider>
 );
 
 export default InfrastructureProvider;

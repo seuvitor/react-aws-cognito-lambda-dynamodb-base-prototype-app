@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "context7": {
+      "command": "bunx",
+      "args": ["--yes", "@upstash/context7-mcp@latest"]
+    },
+    "chrome-devtools": {
+      "command": "bunx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    }
+  }
+}

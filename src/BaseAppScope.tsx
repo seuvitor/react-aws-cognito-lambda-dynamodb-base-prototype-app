@@ -1,44 +1,40 @@
 import type { PropsWithChildren, ReactNode } from "react";
-import { HashRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router";
 import type { AppConfig } from "./core/makeAppConfig";
 import InfrastructureProvider from "./InfrastructureProvider";
 import useAuthRedirect from "./useAuthRedirect";
 
 const RedirectAuthCode = () => {
-	useAuthRedirect();
-	return null;
+  useAuthRedirect();
+  return null;
 };
 
 type AppRoute = {
-	name: string;
-	label: string;
-	path: string;
-	hideFromMenu: boolean;
-	component: () => ReactNode;
-	authorizedGroups?: string[];
+  name: string;
+  label: string;
+  path: string;
+  hideFromMenu: boolean;
+  component: () => ReactNode;
+  authorizedGroups?: string[];
 };
 
 type BaseAppScopeProps = PropsWithChildren<{
-	appConfig: AppConfig;
-	routes: AppRoute[];
+  appConfig: AppConfig;
+  routes: AppRoute[];
 }>;
 
 const BaseAppScope = ({ appConfig, routes, children }: BaseAppScopeProps) => (
-	<InfrastructureProvider appConfig={appConfig}>
-		<RedirectAuthCode />
-		<HashRouter>
-			{children}
-			<Routes>
-				{routes.map((route) => (
-					<Route
-						key={`${route.name}-route`}
-						path={route.path}
-						element={<route.component />}
-					/>
-				))}
-			</Routes>
-		</HashRouter>
-	</InfrastructureProvider>
+  <InfrastructureProvider appConfig={appConfig}>
+    <RedirectAuthCode />
+    <HashRouter>
+      {children}
+      <Routes>
+        {routes.map((route) => (
+          <Route key={`${route.name}-route`} path={route.path} element={<route.component />} />
+        ))}
+      </Routes>
+    </HashRouter>
+  </InfrastructureProvider>
 );
 
 export default BaseAppScope;

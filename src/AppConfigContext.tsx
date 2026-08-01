@@ -3,34 +3,30 @@ import { createContext, useContext } from "react";
 import type { AppConfig } from "./core/makeAppConfig";
 
 type AppConfigContextValue =
-	| {
-			appConfig: AppConfig;
-	  }
-	| undefined;
+  | {
+      appConfig: AppConfig;
+    }
+  | undefined;
 
 const AppConfigContext = createContext<AppConfigContextValue>(undefined);
 
 type AppConfigProviderProps = PropsWithChildren<{
-	appConfig: AppConfig;
+  appConfig: AppConfig;
 }>;
 
 const AppConfigProvider = ({ appConfig, children }: AppConfigProviderProps) => (
-	<AppConfigContext.Provider value={{ appConfig }}>
-		{children}
-	</AppConfigContext.Provider>
+  <AppConfigContext.Provider value={{ appConfig }}>{children}</AppConfigContext.Provider>
 );
 
 const useAppConfig = () => {
-	const ctx = useContext(AppConfigContext);
+  const ctx = useContext(AppConfigContext);
 
-	if (ctx === undefined) {
-		throw new Error(
-			"useAppConfig can only be used in the scope of a AppConfigProvider",
-		);
-	}
+  if (ctx === undefined) {
+    throw new Error("useAppConfig can only be used in the scope of a AppConfigProvider");
+  }
 
-	const { appConfig } = ctx;
-	return { appConfig };
+  const { appConfig } = ctx;
+  return { appConfig };
 };
 
 export default useAppConfig;

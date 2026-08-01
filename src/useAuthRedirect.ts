@@ -6,31 +6,31 @@ import useSpinner from "./SpinnerContext";
 import useUser from "./UserContext";
 
 const useAuthRedirect = () => {
-	const {
-		appConfig: { appBasePath, appMessages },
-	} = useAppConfig();
+  const {
+    appConfig: { appBasePath, appMessages },
+  } = useAppConfig();
 
-	const { showMessage } = useMessage();
-	const { showSpinner, dismissSpinner } = useSpinner();
-	const { loginWithAuthorizationCode } = useUser();
+  const { showMessage } = useMessage();
+  const { showSpinner, dismissSpinner } = useSpinner();
+  const { loginWithAuthorizationCode } = useUser();
 
-	useEffect(() => {
-		authRedirect(
-			appBasePath,
-			showSpinner,
-			dismissSpinner,
-			loginWithAuthorizationCode,
-			showMessage,
-			appMessages,
-		);
-	}, [
-		appBasePath,
-		showSpinner,
-		dismissSpinner,
-		loginWithAuthorizationCode,
-		showMessage,
-		appMessages,
-	]);
+  useEffect(() => {
+    authRedirect(
+      appBasePath,
+      showSpinner,
+      dismissSpinner,
+      loginWithAuthorizationCode,
+      showMessage,
+      appMessages,
+    );
+  }, [
+    appBasePath,
+    showSpinner,
+    dismissSpinner,
+    loginWithAuthorizationCode,
+    showMessage,
+    appMessages,
+  ]);
 };
 
 export default useAuthRedirect;

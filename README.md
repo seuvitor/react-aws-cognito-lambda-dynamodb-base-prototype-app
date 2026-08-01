@@ -16,7 +16,7 @@ Then use the provided hooks in your UI components. A mockup implementation with 
 
 Clone this project and follow the commented instructions in [demo/conf/demoapp-cloudformation.yaml](demo/conf/demoapp-cloudformation.yaml) to create the minimum AWS Cognito resources needed for the demo app.
 
-Edit the file [demo/src/index.js](demo/src/index.js) making the appropriate changes to `myEnv` object to use the created AWS resources:
+Edit the file [demo/src/index.tsx](demo/src/index.tsx) making the appropriate changes to `myEnv` object to use the created AWS resources:
 
 ```
   appRegion: '',
@@ -29,8 +29,8 @@ Edit the file [demo/src/index.js](demo/src/index.js) making the appropriate chan
 Finally run the demo with the following commands:
 
 ```sh
-npm install
-npm run start
+bun install
+bun run start
 ```
 
 The demo will be available on localhost:5000.
